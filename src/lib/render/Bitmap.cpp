@@ -1,3 +1,6 @@
+/** @file Bitmap.cpp
+ * @brief Zarządzanie obrazem w RAM i teksturą aktualizowaną przy rysowaniu. */
+
 #include "Bitmap.hpp"
 
 #include <utility>

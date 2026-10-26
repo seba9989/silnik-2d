@@ -1,3 +1,8 @@
+/** @file Polygon.cpp
+ * @brief Rysowanie wielokątów i wypełnianie poziomymi wierszami.
+ * @details Każdy wiersz rastra przecina krawędzie wielokąta. Posortowane
+ * przecięcia są łączone w pary według reguły parzystości. */
+
 #include "../PrimitiveRenderer.hpp"
 
 #include <algorithm>

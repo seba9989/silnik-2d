@@ -1,8 +1,14 @@
+/** @file PrimitivesScene.cpp
+ * @brief Demonstracja figur, łamanych, warstw, dzieci i algorytmu odcinka.
+ * @details Scena pokazuje interakcję myszy i klawiatury oraz porównanie
+ * algorytmu przyrostowego z funkcją biblioteki raylib. */
+
 #include <cmath>
 #include <vector>
 
 #include "lib/core/Engine.hpp"
 
+/** @brief Konfiguruje interaktywną scenę prymitywów. */
 SCENE("prymitywy") {
     // prostokąt sterowany strzałkami, L przenosi go nad / pod błękitny
     scene.Spawn<Rect>()

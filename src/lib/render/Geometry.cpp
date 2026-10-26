@@ -1,3 +1,8 @@
+/** @file Geometry.cpp
+ * @brief Test przecięcia odcinków i sprawdzanie obwodu wielokąta.
+ * @details Test orientacji i przypadki współliniowe wykrywają wspólne punkty
+ * niesąsiednich krawędzi. */
+
 #include "Geometry.hpp"
 
 #include <algorithm>

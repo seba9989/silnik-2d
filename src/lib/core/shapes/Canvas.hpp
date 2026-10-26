@@ -11,22 +11,33 @@
 //
 //   scene.Spawn<Canvas>().Position({50, 50}).Size({300, 200}).Background(WHITE)
 //       .Content([](PrimitiveRenderer& r) { r.Paint(BLACK).Circle({150, 100}, 80); });
+/** @brief Płótno z bitmapą RAM wyświetlaną jako obiekt sceny.
+ * @details Pozwala odczytywać piksele i stosować wypełnianie przez spójność.
+ * Współrzędne Content() są liczone od lewego górnego rogu płótna. */
 class Canvas : public Shape<Canvas> {
   public:
+    /** @brief Ustawia rozmiar, tworząc bitmapę od nowa.
+     * @param size Szerokość i wysokość w pikselach. @return To samo płótno. */
     Canvas& Size(Vector2 size) {
         bitmap_ = Bitmap{static_cast<int>(size.x), static_cast<int>(size.y), background_};
         return *this;
     }
+    /** @brief Ustawia kolor tła i czyści nim bitmapę.
+     * @param color Kolor tła. @return To samo płótno. */
     Canvas& Background(Color color) {
         background_ = color;
         bitmap_.Clear(color);
         return *this;
     }
+    /** @brief Czyści płótno bieżącym kolorem tła. @return To samo płótno. */
     Canvas& Clear() {
         bitmap_.Clear(background_);
         return *this;
     }
     // rysowanie po płótnie - renderer ma już ustawiony cel na bitmapę płótna
+    /** @brief Wykonuje rysowanie na bitmapie płótna.
+     * @param paint Funkcja otrzymująca renderer skierowany na bitmapę.
+     * @return To samo płótno. */
     Canvas& Content(const std::function<void(PrimitiveRenderer&)>& paint) {
         PrimitiveRenderer renderer;
         renderer.Target(bitmap_);
@@ -34,8 +45,10 @@ class Canvas : public Shape<Canvas> {
         return *this;
     }
 
+    /** @brief Udostępnia bitmapę płótna. @return Referencja do bitmapy. */
     Bitmap& Pixels() { return bitmap_; }
 
+    /** @copydoc Entity::Contains */
     bool Contains(Vector2 point) const override {
         const Vector2 corner = WorldPosition();
         return ::CheckCollisionPointRec(point,

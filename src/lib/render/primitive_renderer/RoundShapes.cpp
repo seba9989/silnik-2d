@@ -1,3 +1,8 @@
+/** @file RoundShapes.cpp
+ * @brief Algorytmy okręgu i elipsy z wykorzystaniem symetrii.
+ * @details Okrąg wykorzystuje osiem odbić punktu obliczonego w wycinku pi/4,
+ * a elipsa cztery odbicia punktu obliczonego w ćwiartce. */
+
 #include "../PrimitiveRenderer.hpp"
 
 #include <algorithm>

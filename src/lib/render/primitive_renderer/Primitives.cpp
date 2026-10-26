@@ -1,3 +1,8 @@
+/** @file Primitives.cpp
+ * @brief Podstawowe prymitywy i własny algorytm przyrostowy odcinka.
+ * @details Algorytm wybiera oś o większej zmianie współrzędnej, wykonuje na niej
+ * kroki o jeden piksel i dodaje stały przyrost na drugiej osi. */
+
 #include "../PrimitiveRenderer.hpp"
 
 #include <cmath>

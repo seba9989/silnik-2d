@@ -1,3 +1,8 @@
+/** @file ShapesScene.cpp
+ * @brief Demonstracja algorytmów okręgu, elipsy, wielokąta i wypełniania.
+ * @details Czerwone krzywe rysuje algorytm własny, niebieskie raylib.
+ * Płótno pozwala porównać flood fill i boundary fill. */
+
 #include <array>
 #include <vector>
 
@@ -5,6 +10,7 @@
 
 // Lab 3: własne algorytmy okręgu i elipsy (porównanie z raylib), wielokąty i wypełnianie.
 // Kolor czerwony - własny algorytm, niebieski - raylib.
+/** @brief Konfiguruje scenę porównania algorytmów z raylib. */
 SCENE("figury") {
     // ---------------- okrąg: 8-krotna symetria vs raylib ----------------
     scene.Spawn<Circle>().Position({90, 110}).Radius(55).Symmetric().Paint(RED);

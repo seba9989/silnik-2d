@@ -1,7 +1,12 @@
+/** @file MenuScene.cpp
+ * @brief Scena startowa z animowaną piłką i przyciskiem START.
+ * @details Przycisk reaguje na najechanie kursora i przełącza na scenę prymitywów. */
+
 #include <cmath>
 
 #include "lib/core/Engine.hpp"
 
+/** @brief Konfiguruje scenę menu po otwarciu okna. */
 SCENE("menu") {
     scene.Spawn<Rect>().Position({300, 200}).Size({400, 300}).Paint(DARKBLUE);
 

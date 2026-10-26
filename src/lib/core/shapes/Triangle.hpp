@@ -2,9 +2,12 @@
 
 #include "../Shape.hpp"
 
-// wierzchołki względem pozycji obiektu
+/** @brief Trójkąt z wierzchołkami lokalnymi względem pozycji obiektu. */
 class Triangle : public Shape<Triangle> {
   public:
+    /** @brief Ustawia trzy wierzchołki trójkąta.
+     * @param a Pierwszy wierzchołek. @param b Drugi wierzchołek.
+     * @param c Trzeci wierzchołek. @return Ten sam trójkąt. */
     Triangle& Vertices(Vector2 a, Vector2 b, Vector2 c) {
         a_ = a;
         b_ = b;
@@ -12,6 +15,7 @@ class Triangle : public Shape<Triangle> {
         return *this;
     }
 
+    /** @copydoc Entity::Contains */
     bool Contains(Vector2 point) const override {
         return ::CheckCollisionPointTriangle(point, World(a_), World(b_), World(c_));
     }

@@ -1,3 +1,7 @@
+/** @file Fill.cpp
+ * @brief Iteracyjne algorytmy boundary fill i flood fill na bitmapie RAM.
+ * @details Stos pikseli zastępuje rekurencję. Każdy krok bada czterech sąsiadów. */
+
 #include "../PrimitiveRenderer.hpp"
 
 #include <cmath>

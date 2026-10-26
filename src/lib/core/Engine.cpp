@@ -1,3 +1,6 @@
+/** @file Engine.cpp
+ * @brief Inicjalizacja okna, pętla gry, obsługa scen i diagnostyka. */
+
 #include "Engine.hpp"
 
 #include <iostream>

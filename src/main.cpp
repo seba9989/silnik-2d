@@ -1,3 +1,41 @@
+/**
+ * @mainpage Silnik 2D
+ *
+ * @section cel Cel projektu
+ * Silnik 2D napisany w C++20 z użyciem raylib. Biblioteka udostępnia sceny,
+ * obiekty z hierarchią dzieci, wejście z klawiatury i myszy oraz renderer
+ * prymitywów. Program zawiera demonstrację funkcji z laboratoriów 1-3.
+ *
+ * @section uruchomienie Kompilacja i uruchomienie
+ * W katalogu głównym projektu należy wykonać:
+ * @code{.sh}
+ * cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+ * cmake --build build
+ * @endcode
+ * Program wynikowy to `build/silnik.exe` na Windows albo `build/silnik` na Linux.
+ * Jeśli raylib nie jest dostępny lokalnie, CMake pobiera wersję 5.5.
+ *
+ * @section budowa Najważniejsze części
+ * - @ref Engine zarządza oknem, pętlą i przełączaniem scen.
+ * - @ref Scene przechowuje obiekty aktywnego ekranu.
+ * - @ref Entity i @ref Shape opisują hierarchię figur oraz zdarzenia.
+ * - @ref PrimitiveRenderer rysuje na ekranie albo na @ref Bitmap.
+ * - @ref Canvas udostępnia bitmapę do algorytmów wypełniania.
+ *
+ * @section algorytmy Algorytmy laboratoriów
+ * Własny algorytm przyrostowy odcinka, okrąg z ośmiokrotną symetrią, elipsa
+ * z czterokrotną symetrią, kontrola przecięć wielokąta, wypełnianie scanline
+ * oraz iteracyjne flood fill i boundary fill są opisane przy metodach
+ * @ref PrimitiveRenderer. W scenie `figury` porównano krzywe z raylib.
+ *
+ * @section obsluga Sceny demonstracyjne
+ * Klawisze 1, 2 i 3 wybierają odpowiednio `menu`, `prymitywy` i `figury`.
+ * Na scenie `prymitywy` strzałki przesuwają prostokąt, L zmienia warstwę,
+ * PPM przesuwa koniec odcinka, a spacja przełącza jego algorytm.
+ * Na scenie `figury` LPM uruchamia flood fill na płótnie, Shift+LPM
+ * uruchamia boundary fill, a R przywraca kontury.
+ */
+
 #include <string>
 
 #include "lib/core/Engine.hpp"
