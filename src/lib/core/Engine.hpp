@@ -1,3 +1,7 @@
+/**
+ * @file Engine.hpp
+ * @brief Klasa Engine (okno, pętla gry, sceny, wejście) i makro SCENE.
+ */
 #pragma once
 
 #include <raylib.h>
@@ -18,39 +22,32 @@
  * @brief Główny obiekt silnika zarządzający oknem, scenami, wejściem i pętlą gry.
  * @details Silnik jest singletonem: Engine::Get() zwraca zawsze tę samą instancję.
  * Metody konfiguracji zwracają Engine&, dlatego można je łączyć w łańcuch.
- * Ustawienia okna można zmieniać także po Init().
+ * Ustawienia okna można zmieniać także po Init() - zmieniają wtedy okno na bieżąco.
  *
- * Przykład użycia:
+ * W każdej klatce Run() wykonuje kolejno: globalne OnUpdate(), aktualizację aktywnej
+ * sceny, czyszczenie ekranu, rysowanie sceny, globalne OnDraw() i zamianę buforów.
+ *
  * @code{.cpp}
  * Engine& engine = Engine::Get().Title("Gra").Window(800, 600).Fps(60).Init();
  * if (!engine.Ready()) return 1;
- * return engine.Run();
+ *
+ * engine.CreateScene("menu", [&](Scene& scene) { // pierwsza scena staje się aktywna
+ *     scene.Spawn<Circle>().Position({400, 300}).Radius(20).Paint(ORANGE).Fill();
+ * });
+ *
+ * return engine
+ *     .OnUpdate([&](float) {
+ *         if (engine.KeyPressed(KEY_ENTER)) engine.SwitchScene("menu");
+ *     })
+ *     .Run();
  * @endcode
  */
-// Silnik gry. Konfiguracja, scena i pętla gry przez method chaining:
-//
-//   Engine& engine = Engine::Get().Title("Gra").Window(800, 600).Fps(60).Init();
-//   if (!engine.Ready()) return 1;
-//
-//   engine.CreateScene("menu", [&](Scene& scene) {   // pierwsza scena staje się aktywna
-//       scene.Spawn<Circle>().Position({400, 300}).Radius(20).Paint(ORANGE).Fill();
-//   });
-//
-//   engine.CreateScene("gra", [&](Scene& scene) {
-//       scene.OnUpdate([&](float dt) { ... });
-//   });
-//
-//   return engine
-//       .OnUpdate([&](float) {
-//           if (engine.KeyPressed(KEY_ENTER)) engine.SwitchScene("gra");
-//       })
-//       .Run();
-//
-// Settery okna działają też po Init() - zmieniają okno na bieżąco.
 class Engine {
   public:
-    /** @brief Zwraca jedyną instancję silnika. @return Referencja do silnika. */
-    // Singleton: jedyna instancja, tworzona przy pierwszym wywołaniu.
+    /**
+     * @brief Zwraca jedyną instancję silnika (singleton Meyersa).
+     * @return Referencja do silnika, tworzonego przy pierwszym wywołaniu.
+     */
     static Engine& Get() {
         static Engine instance;
         return instance;
@@ -61,215 +58,383 @@ class Engine {
     /** @brief Przypisanie kopii silnika jest zabronione. */
     Engine& operator=(const Engine&) = delete;
 
-    // konfiguracja okna
-    /** @brief Ustawia tytuł okna. @param title Nowy tytuł. @return Ten sam silnik. */
+    /** @name Konfiguracja okna */
+    /** @{ */
+
+    /**
+     * @brief Ustawia tytuł okna.
+     * @param title Nowy tytuł.
+     * @return Ten sam silnik.
+     */
     Engine& Title(std::string title);
-    /** @brief Ustawia rozmiar okna i wyłącza tryb pełnoekranowy.
-     * @param width Szerokość w pikselach. @param height Wysokość w pikselach.
-     * @return Ten sam silnik. */
+
+    /**
+     * @brief Ustawia rozmiar okna i wyłącza tryb pełnoekranowy.
+     * @param width Szerokość w pikselach.
+     * @param height Wysokość w pikselach.
+     * @return Ten sam silnik.
+     */
     Engine& Window(int width, int height);
-    /** @brief Włącza lub wyłącza tryb pełnoekranowy.
-     * @param value Czy włączyć ten tryb. @return Ten sam silnik. */
+
+    /**
+     * @brief Włącza lub wyłącza tryb pełnoekranowy.
+     * @param value Czy włączyć ten tryb.
+     * @return Ten sam silnik.
+     */
     Engine& Fullscreen(bool value = true);
-    /** @brief Ustawia docelową liczbę klatek na sekundę.
-     * @param fps Docelowa liczba klatek. @return Ten sam silnik. */
+
+    /**
+     * @brief Ustawia docelową liczbę klatek na sekundę.
+     * @param fps Docelowa liczba klatek.
+     * @return Ten sam silnik.
+     */
     Engine& Fps(int fps);
-    // Wielokrotne buforowanie: raylib (przez GLFW) zawsze tworzy okno z podwójnym buforem
-    // ramki - rysujemy w tylnym buforze, a EndDrawing() zamienia go z przednim. VSync()
-    // synchronizuje tę zamianę z odświeżaniem monitora, co usuwa rozrywanie obrazu (tearing).
-    /** @brief Włącza lub wyłącza synchronizację pionową.
-     * @details Podwójne buforowanie okna działa niezależnie od tego ustawienia.
-     * @param value Czy włączyć VSync. @return Ten sam silnik. */
+
+    /**
+     * @brief Włącza lub wyłącza synchronizację pionową (V-Sync).
+     * @details Wielokrotne buforowanie: raylib (przez GLFW) zawsze tworzy okno z podwójnym
+     * buforem ramki - rysujemy w tylnym buforze, a EndDrawing() zamienia go z przednim.
+     * V-Sync synchronizuje tę zamianę z odświeżaniem monitora, co usuwa rozrywanie obrazu
+     * (tearing). Podwójne buforowanie działa niezależnie od tego ustawienia.
+     * @param value Czy włączyć V-Sync.
+     * @return Ten sam silnik.
+     */
     Engine& VSync(bool value = true);
-    /** @brief Ustawia kolor czyszczenia ekranu na początku każdej klatki.
-     * @param color Kolor tła. @return Ten sam silnik. */
+
+    /**
+     * @brief Ustawia kolor czyszczenia ekranu na początku każdej klatki.
+     * @param color Kolor tła.
+     * @return Ten sam silnik.
+     */
     Engine& Background(Color color) {
         background_ = color;
         return *this;
     }
 
-    // konfiguracja wejścia i logów
-    /** @brief Włącza lub wyłącza odczyt klawiatury.
-     * @param value Czy włączyć klawiaturę. @return Ten sam silnik. */
+    /** @} */
+
+    /** @name Konfiguracja wejścia i logów */
+    /** @{ */
+
+    /**
+     * @brief Włącza lub wyłącza odczyt klawiatury.
+     * @param value Czy włączyć klawiaturę.
+     * @return Ten sam silnik.
+     */
     Engine& Keyboard(bool value = true) {
         input_.Keyboard(value);
         return *this;
     }
-    /** @brief Włącza lub wyłącza odczyt myszy.
-     * @param value Czy włączyć mysz. @return Ten sam silnik. */
+
+    /**
+     * @brief Włącza lub wyłącza odczyt myszy.
+     * @details Wyłączenie myszy wyłącza też zdarzenia myszy obiektów sceny.
+     * @param value Czy włączyć mysz.
+     * @return Ten sam silnik.
+     */
     Engine& Mouse(bool value = true) {
         input_.Mouse(value);
         return *this;
     }
-    /** @brief Ustawia ścieżkę pliku diagnostycznego.
+
+    /**
+     * @brief Ustawia ścieżkę pliku diagnostycznego.
      * @param path Ścieżka pliku; pusty napis wyłącza zapis do pliku.
-     * @return Ten sam silnik. */
+     * @return Ten sam silnik.
+     */
     Engine& LogFile(std::string path) {
         logFile_ = std::move(path);
         return *this;
     }
 
-    // logika globalna wywoływana co klatkę, niezależnie od aktywnej sceny
-    /** @brief Ustawia globalną funkcję aktualizacji.
+    /** @} */
+
+    /** @name Logika globalna (niezależna od aktywnej sceny) */
+    /** @{ */
+
+    /**
+     * @brief Ustawia globalną funkcję aktualizacji.
      * @param update Funkcja wywoływana co klatkę z czasem dt w sekundach.
-     * @return Ten sam silnik. */
+     * @return Ten sam silnik.
+     */
     Engine& OnUpdate(std::function<void(float dt)> update) {
         update_ = std::move(update);
         return *this;
     }
-    /** @brief Ustawia globalną funkcję rysowania.
-     * @param draw Funkcja wywoływana co klatkę z rendererem.
-     * @return Ten sam silnik. */
+
+    /**
+     * @brief Ustawia globalną funkcję rysowania (np. HUD widoczny w każdej scenie).
+     * @param draw Funkcja wywoływana co klatkę po narysowaniu sceny.
+     * @return Ten sam silnik.
+     */
     Engine& OnDraw(std::function<void(PrimitiveRenderer&)> draw) {
         draw_ = std::move(draw);
         return *this;
     }
 
-    // cykl życia: Init() otwiera okno, Run() kręci pętlę aż do zamknięcia i sprząta.
-    // Run() zwraca kod wyjścia dla main (0 - ok, 1 - błąd inicjalizacji).
-    /** @brief Otwiera okno i inicjalizuje silnik, jeśli jeszcze nie jest gotowy.
-     * @return Ten sam silnik; wynik można sprawdzić przez Ready(). */
+    /** @} */
+
+    /** @name Cykl życia */
+    /** @{ */
+
+    /**
+     * @brief Otwiera okno i inicjalizuje silnik, jeśli jeszcze nie jest gotowy.
+     * @details Błąd utworzenia okna jest zapisywany w logu.
+     * @return Ten sam silnik; wynik można sprawdzić przez Ready().
+     */
     Engine& Init();
-    /** @brief Sprawdza wynik inicjalizacji. @return true, gdy okno jest gotowe. */
+
+    /**
+     * @brief Sprawdza wynik inicjalizacji.
+     * @return true, gdy okno jest gotowe.
+     */
     bool Ready() const { return initialized_; }
-    /** @brief Uruchamia pętlę gry aż do zamknięcia okna.
-     * @return 0 po normalnym zakończeniu albo 1 po błędzie inicjalizacji. */
+
+    /**
+     * @brief Uruchamia pętlę gry aż do zamknięcia okna, a potem sprząta.
+     * @return 0 po normalnym zakończeniu albo 1 po błędzie inicjalizacji (kod wyjścia dla main).
+     */
     int Run();
-    /** @brief Zwalnia sceny, tekstury i okno. Ponowne wywołanie jest bezpieczne. */
+
+    /**
+     * @brief Zwalnia sceny, tekstury i okno.
+     * @details Sceny są usuwane przed zamknięciem okna, bo tekstury bitmap wymagają
+     * aktywnego kontekstu OpenGL. Ponowne wywołanie jest bezpieczne.
+     */
     void Shutdown();
 
-    // sceny: aktualizowana i rysowana jest tylko aktywna.
-    // SwitchScene() zmienia scenę na końcu bieżącej klatki.
-    // CreateScene(name, setup) tworzy scenę, od razu wywołuje setup(scena) i zwraca silnik,
-    // więc sceny można łączyć w jeden łańcuch. Wersja bez setup zwraca samą scenę.
-    /** @brief Tworzy scenę i natychmiast wykonuje jej konfigurację.
-     * @param name Nazwa sceny. @param setup Funkcja otrzymująca utworzoną scenę.
-     * @return Ten sam silnik. */
+    /** @} */
+
+    /**
+     * @name Sceny
+     * Aktualizowana i rysowana jest tylko aktywna scena; nieaktywne pozostają zamrożone.
+     */
+    /** @{ */
+
+    /**
+     * @brief Tworzy scenę i natychmiast wykonuje jej konfigurację.
+     * @param name Nazwa sceny.
+     * @param setup Funkcja otrzymująca utworzoną scenę.
+     * @return Ten sam silnik.
+     */
     Engine& CreateScene(const std::string& name, const std::function<void(Scene&)>& setup);
-    /** @brief Tworzy scenę albo zwraca już istniejącą o tej nazwie.
-     * @param name Nazwa sceny. @return Referencja do sceny. */
+
+    /**
+     * @brief Tworzy scenę albo zwraca już istniejącą o tej nazwie.
+     * @details Pierwsza utworzona scena staje się aktywna.
+     * @param name Nazwa sceny.
+     * @return Referencja do sceny.
+     */
     Scene& CreateScene(const std::string& name);
 
-    // RegisterScene() tylko zapamiętuje setup - scena powstaje w Run(), już po otwarciu okna.
-    // Zwykle używane przez makro SCENE (niżej). StartScene() wybiera scenę startową.
-    /** @brief Rejestruje konfigurację sceny do wykonania po otwarciu okna.
-     * @param name Nazwa sceny. @param setup Funkcja konfigurująca scenę.
-     * @return Ten sam silnik. */
+    /**
+     * @brief Rejestruje konfigurację sceny do wykonania po otwarciu okna.
+     * @details Scena powstaje dopiero w Run(), już po Init(). Zwykle wywoływane przez makro
+     * SCENE.
+     * @param name Nazwa sceny.
+     * @param setup Funkcja konfigurująca scenę.
+     * @return Ten sam silnik.
+     */
     Engine& RegisterScene(std::string name, std::function<void(Scene&)> setup);
-    /** @brief Wybiera scenę startową spośród zarejestrowanych scen.
-     * @param name Nazwa sceny. @return Ten sam silnik. */
+
+    /**
+     * @brief Wybiera scenę startową spośród zarejestrowanych scen.
+     * @details Kolejność rejestracji scen z różnych plików jest nieokreślona, dlatego scenę
+     * startową trzeba wskazać jawnie.
+     * @param name Nazwa sceny.
+     * @return Ten sam silnik.
+     */
     Engine& StartScene(std::string name) {
         start_ = std::move(name);
         return *this;
     }
-    /** @brief Pobiera scenę o podanej nazwie.
-     * @param name Nazwa sceny. @return Referencja do sceny.
-     * @throw std::out_of_range Gdy scena nie istnieje. */
+
+    /**
+     * @brief Pobiera scenę o podanej nazwie.
+     * @param name Nazwa sceny.
+     * @return Referencja do sceny.
+     * @throw std::out_of_range Gdy scena nie istnieje.
+     */
     Scene& GetScene(const std::string& name) { return scenes_.at(name); }
-    /** @brief Zleca zmianę aktywnej sceny na koniec bieżącej klatki.
-     * @param name Nazwa istniejącej sceny. @return Ten sam silnik.
-     * Nieznana nazwa jest zapisywana jako błąd w logu. */
+
+    /**
+     * @brief Zleca zmianę aktywnej sceny na koniec bieżącej klatki.
+     * @details Nieznana nazwa jest zapisywana jako błąd w logu.
+     * @param name Nazwa istniejącej sceny.
+     * @return Ten sam silnik.
+     */
     Engine& SwitchScene(const std::string& name);
-    /** @brief Podaje nazwę aktywnej sceny. @return Referencja do nazwy. */
+
+    /**
+     * @brief Podaje nazwę aktywnej sceny.
+     * @return Referencja do nazwy.
+     */
     const std::string& ActiveScene() const { return active_; }
 
-    // klawiatura i mysz
-    /** @brief Sprawdza, czy klawisz jest aktualnie wciśnięty. @param key Kod klawisza raylib. @return Stan klawisza. */
+    /** @} */
+
+    /** @name Klawiatura i mysz */
+    /** @{ */
+
+    /**
+     * @brief Sprawdza, czy klawisz jest aktualnie wciśnięty.
+     * @param key Kod klawisza raylib.
+     * @return Stan klawisza.
+     */
     bool KeyDown(int key) const { return input_.KeyDown(key); }
-    /** @brief Sprawdza, czy klawisz naciśnięto w bieżącej klatce. @param key Kod klawisza raylib. @return Stan naciśnięcia. */
+
+    /**
+     * @brief Sprawdza, czy klawisz naciśnięto w bieżącej klatce.
+     * @param key Kod klawisza raylib.
+     * @return Stan naciśnięcia.
+     */
     bool KeyPressed(int key) const { return input_.KeyPressed(key); }
-    /** @brief Sprawdza, czy przycisk myszy jest wciśnięty. @param button Kod przycisku raylib. @return Stan przycisku. */
+
+    /**
+     * @brief Sprawdza, czy przycisk myszy jest wciśnięty.
+     * @param button Kod przycisku raylib.
+     * @return Stan przycisku.
+     */
     bool MouseDown(int button) const { return input_.MouseDown(button); }
-    /** @brief Sprawdza, czy przycisk myszy naciśnięto w bieżącej klatce. @param button Kod przycisku raylib. @return Stan naciśnięcia. */
+
+    /**
+     * @brief Sprawdza, czy przycisk myszy naciśnięto w bieżącej klatce.
+     * @param button Kod przycisku raylib.
+     * @return Stan naciśnięcia.
+     */
     bool MousePressed(int button) const { return input_.MousePressed(button); }
-    /** @brief Pobiera pozycję kursora w oknie. @return Współrzędne kursora. */
+
+    /**
+     * @brief Pobiera pozycję kursora w oknie.
+     * @return Współrzędne kursora albo {0, 0}, gdy mysz jest wyłączona.
+     */
     Vector2 MousePosition() const { return input_.MousePosition(); }
 
-    // czyszczenie ekranu / bitmapy
-    /** @brief Czyści aktualny cel rysowania wskazanym kolorem.
-     * @param color Kolor czyszczenia. @return Ten sam silnik. */
+    /** @} */
+
+    /** @name Czyszczenie ekranu i bitmap */
+    /** @{ */
+
+    /**
+     * @brief Czyści aktualny cel rysowania wskazanym kolorem.
+     * @param color Kolor czyszczenia.
+     * @return Ten sam silnik.
+     */
     Engine& Clear(Color color) {
         ::ClearBackground(color);
         return *this;
     }
-    /** @brief Czyści teksturę renderowaną.
-     * @param target Tekstura docelowa. @param color Kolor czyszczenia.
-     * @return Ten sam silnik. */
+
+    /**
+     * @brief Czyści teksturę renderowaną.
+     * @param target Tekstura docelowa.
+     * @param color Kolor czyszczenia.
+     * @return Ten sam silnik.
+     */
     Engine& Clear(RenderTexture2D& target, Color color);
-    /** @brief Czyści bitmapę w pamięci RAM.
-     * @param bitmap Bitmapa docelowa. @param color Kolor czyszczenia.
-     * @return Ten sam silnik. */
+
+    /**
+     * @brief Czyści bitmapę w pamięci RAM.
+     * @param bitmap Bitmapa docelowa.
+     * @param color Kolor czyszczenia.
+     * @return Ten sam silnik.
+     */
     Engine& Clear(Bitmap& bitmap, Color color) {
         bitmap.Clear(color);
         return *this;
     }
 
-    // rysowanie prymitywów
-    /** @brief Udostępnia renderer prymitywów silnika. @return Referencja do renderera. */
+    /** @} */
+
+    /** @name Rysowanie i diagnostyka */
+    /** @{ */
+
+    /**
+     * @brief Udostępnia renderer prymitywów silnika.
+     * @return Referencja do renderera.
+     */
     PrimitiveRenderer& Primitives() { return primitives_; }
 
-    // błędy / diagnostyka
-    /** @brief Zapisuje komunikat do stderr i opcjonalnego pliku logu.
-     * @param message Treść komunikatu. @return Ten sam silnik. */
+    /**
+     * @brief Zapisuje komunikat do stderr i opcjonalnego pliku logu.
+     * @param message Treść komunikatu.
+     * @return Ten sam silnik.
+     */
     Engine& Log(const std::string& message);
 
+    /** @} */
+
   private:
+    /** @brief Prywatny konstruktor - instancję zwraca wyłącznie Get(). */
     Engine() = default;
+    /** @brief Destruktor wywołuje Shutdown(). */
     ~Engine() { Shutdown(); }
 
-    std::string title_ = "Gra";
-    int width_ = 800;
-    int height_ = 600;
-    bool fullscreen_ = false;
-    bool vsync_ = false;
-    int fps_ = 60;
-    Color background_ = BLACK;
-    Input input_;
-    std::string logFile_ = "engine.log";
+    std::string title_ = "Gra";          /**< Tytuł okna. */
+    int width_ = 800;                    /**< Szerokość okna w trybie okienkowym. */
+    int height_ = 600;                   /**< Wysokość okna w trybie okienkowym. */
+    bool fullscreen_ = false;            /**< Czy używać trybu pełnoekranowego. */
+    bool vsync_ = false;                 /**< Czy włączyć synchronizację pionową. */
+    int fps_ = 60;                       /**< Docelowa liczba klatek na sekundę. */
+    Color background_ = BLACK;           /**< Kolor czyszczenia ekranu w każdej klatce. */
+    Input input_;                        /**< Stan i ustawienia klawiatury oraz myszy. */
+    std::string logFile_ = "engine.log"; /**< Ścieżka pliku logu; pusta wyłącza zapis. */
 
-    std::function<void(float)> update_;
-    std::function<void(PrimitiveRenderer&)> draw_;
+    std::function<void(float)> update_;            /**< Globalna logika co klatkę. */
+    std::function<void(PrimitiveRenderer&)> draw_; /**< Globalne rysowanie po scenie. */
 
-    std::ofstream log_;
-    bool initialized_ = false;
+    std::ofstream log_;        /**< Otwarty plik logu. */
+    bool initialized_ = false; /**< Czy okno zostało utworzone. */
 
-    std::map<std::string, Scene> scenes_;
-    std::string active_;
-    std::string pending_; // scena, na którą przełączamy po zakończeniu klatki
-    std::string start_;   // scena startowa wybrana przez StartScene()
+    std::map<std::string, Scene> scenes_; /**< Utworzone sceny według nazw. */
+    std::string active_;                  /**< Nazwa aktywnej sceny. */
+    std::string pending_; /**< Scena, na którą przełączamy po zakończeniu klatki. */
+    std::string start_;   /**< Scena startowa wybrana przez StartScene(). */
+    /** Sceny zarejestrowane makrem SCENE, tworzone w Run(). */
     std::map<std::string, std::function<void(Scene&)>> registered_;
-    PrimitiveRenderer primitives_;
+    PrimitiveRenderer primitives_; /**< Renderer używany do rysowania scen. */
 
+    /**
+     * @brief Tworzy sceny zarejestrowane przez RegisterScene() i ustawia scenę startową.
+     */
     void CreateRegisteredScenes();
 };
 
-// ------------------------------------------------------------
-// Samorejestracja scen. W dowolnym pliku .cpp:
-//
-//   SCENE("menu") {
-//       scene.Spawn<Rect>().Position({300, 200}).Size({400, 300});
-//   }
-//
-// Wewnątrz bloku dostępna jest zmienna `scene` (Scene&). Scena zostanie utworzona w Run(),
-// a scenę startową wybiera engine.StartScene("menu") w main.
-// ------------------------------------------------------------
-/** @brief Pomocniczy rejestrator scen wykorzystywany przez makro SCENE. */
+/**
+ * @brief Pomocniczy rejestrator scen wykorzystywany przez makro SCENE.
+ * @details Statyczny obiekt tej klasy powstaje przed main(), a jego konstruktor rejestruje
+ * funkcję konfigurującą scenę w silniku.
+ */
 struct SceneRegistration {
-    /** @brief Zapamiętuje funkcję konfigurującą scenę.
-     * @param name Nazwa sceny. @param setup Funkcja konfigurująca. */
+    /**
+     * @brief Zapamiętuje funkcję konfigurującą scenę.
+     * @param name Nazwa sceny.
+     * @param setup Funkcja konfigurująca.
+     */
     SceneRegistration(const char* name, void (*setup)(Scene&)) {
         Engine::Get().RegisterScene(name, setup);
     }
 };
 
+/** @cond PRYWATNE */
 #define SCENE_CONCAT_(a, b) a##b
 #define SCENE_CONCAT(a, b) SCENE_CONCAT_(a, b)
 #define SCENE_IMPL_(name, setup)                                                                   \
     static void setup(Scene& scene);                                                               \
     static const SceneRegistration SCENE_CONCAT(setup, _registration){name, setup};                \
     static void setup(Scene& scene)
-/** @def SCENE(name)
+/** @endcond */
+
+/**
+ * @def SCENE(name)
  * @brief Rejestruje scenę z bloku kodu wykonywanego po inicjalizacji okna.
+ * @details Wewnątrz bloku dostępna jest zmienna `scene` (Scene&). Scena zostanie utworzona
+ * w Engine::Run(), a scenę startową wybiera Engine::StartScene().
+ * @code{.cpp}
+ * SCENE("menu") {
+ *     scene.Spawn<Rect>().Position({300, 200}).Size({400, 300});
+ * }
+ * @endcode
  * @param name Nazwa sceny używana przez StartScene() i SwitchScene().
  */
 #define SCENE(name) SCENE_IMPL_(name, SCENE_CONCAT(scene_setup_, __LINE__))

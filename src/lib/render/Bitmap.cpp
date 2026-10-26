@@ -1,11 +1,16 @@
-/** @file Bitmap.cpp
- * @brief Zarządzanie obrazem w RAM i teksturą aktualizowaną przy rysowaniu. */
+/**
+ * @file Bitmap.cpp
+ * @brief Zarządzanie obrazem w RAM i teksturą aktualizowaną przy rysowaniu.
+ */
 
 #include "Bitmap.hpp"
 
 #include <utility>
 
-// GenImageColor tworzy obraz w formacie R8G8B8A8, więc piksele to zwykła tablica Color
+/**
+ * @details GenImageColor tworzy obraz w formacie R8G8B8A8, więc piksele to zwykła
+ * tablica Color.
+ */
 Bitmap::Bitmap(int width, int height, Color background)
     : image_(::GenImageColor(width, height, background)) {
 }

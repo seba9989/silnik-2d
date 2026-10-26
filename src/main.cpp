@@ -1,4 +1,9 @@
 /**
+ * @file main.cpp
+ * @brief Punkt wejścia: konfiguracja silnika, przełączanie scen i HUD.
+ */
+
+/**
  * @mainpage Silnik 2D
  *
  * @section cel Cel projektu
@@ -34,17 +39,28 @@
  * PPM przesuwa koniec odcinka, a spacja przełącza jego algorytm.
  * Na scenie `figury` LPM uruchamia flood fill na płótnie, Shift+LPM
  * uruchamia boundary fill, a R przywraca kontury.
+ *
+ * @section dokumentacja Dokumentacja
+ * Dokumentację HTML generuje polecenie `docs` (devenv) albo, w katalogu głównym projektu:
+ * @code{.sh}
+ * doxygen doxygen/Doxyfile
+ * @endcode
+ * Wynik trafia do `doxygen/html/index.html`.
  */
 
 #include <string>
 
 #include "lib/core/Engine.hpp"
 
-// Sceny rejestrują się same - patrz SCENE(...) w src/scenes/*.cpp
+/**
+ * @brief Konfiguruje silnik, ustawia logikę globalną i uruchamia pętlę gry.
+ * @details Sceny rejestrują się same - patrz makro SCENE w plikach katalogu src/scenes.
+ * @return Kod wyjścia zwrócony przez Engine::Run().
+ */
 int main() {
     Engine& engine = Engine::Get()
                          .Title("Silnik 2D - lab 3")
-                         .VSync(false)           // podwójne buforowanie z synchronizacją pionową
+                         .VSync(false) // V-Sync wyłączony; podwójne buforowanie działa zawsze
                          .Window(1000, 700) // albo .Fullscreen()
                          .Background(RAYWHITE)
                          .StartScene("menu")

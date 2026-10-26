@@ -1,7 +1,10 @@
+/**
+ * @file Shapes.hpp
+ * @brief Zbiorczy nagłówek wszystkich wbudowanych kształtów.
+ * @details Wygodny punkt włączenia dla kodu scen - dołącza go Engine.hpp.
+ */
 #pragma once
 
-// Zbiorczy nagłówek wszystkich wbudowanych kształtów - wygodny punkt włączenia
-// dla kodu scen (patrz Engine.hpp).
 #include "shapes/Canvas.hpp"
 #include "shapes/Circle.hpp"
 #include "shapes/Ellipse.hpp"

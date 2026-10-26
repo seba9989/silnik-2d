@@ -1,3 +1,7 @@
+/**
+ * @file Lines.hpp
+ * @brief Kształt Lines - zbiór niezależnych odcinków (wersja tablicowa).
+ */
 #pragma once
 
 #include <utility>
@@ -9,14 +13,21 @@
 /** @brief Zbiór niezależnych odcinków tworzonych z kolejnych par wierzchołków. */
 class Lines : public Shape<Lines> {
   public:
-    /** @brief Ustawia pary końców odcinków.
-     * @param vertices Wierzchołki (0,1), (2,3) itd. @return Ten sam zbiór. */
+    /**
+     * @brief Ustawia pary końców odcinków.
+     * @param vertices Wierzchołki (0,1), (2,3) itd., lokalne względem pozycji obiektu.
+     * @return Ten sam zbiór.
+     */
     Lines& Vertices(std::vector<Vector2> vertices) {
         vertices_ = std::move(vertices);
         return *this;
     }
-    /** @brief Wybiera algorytm przyrostowy dla odcinków.
-     * @param value Czy włączyć algorytm własny. @return Ten sam zbiór. */
+
+    /**
+     * @brief Wybiera algorytm przyrostowy dla odcinków.
+     * @param value Czy włączyć algorytm własny.
+     * @return Ten sam zbiór.
+     */
     Lines& Incremental(bool value = true) {
         incremental_ = value;
         return *this;
@@ -32,11 +43,12 @@ class Lines : public Shape<Lines> {
     }
 
   protected:
+    /** @copydoc Entity::Draw */
     void Draw(PrimitiveRenderer& renderer) const override {
         renderer.Paint(color_).Incremental(incremental_).Lines(WorldVertices(vertices_));
     }
 
   private:
-    std::vector<Vector2> vertices_;
-    bool incremental_ = false;
+    std::vector<Vector2> vertices_; /**< Pary końców odcinków. */
+    bool incremental_ = false;      /**< Czy użyć algorytmu przyrostowego. */
 };

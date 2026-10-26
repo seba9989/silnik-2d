@@ -1,3 +1,7 @@
+/**
+ * @file Ellipse.hpp
+ * @brief Kształt Ellipse - elipsa pusta lub wypełniona.
+ */
 #pragma once
 
 #include "../Shape.hpp"
@@ -5,16 +9,21 @@
 /** @brief Elipsa; pozycja obiektu oznacza środek, a promienie obie półosie. */
 class Ellipse : public Shape<Ellipse> {
   public:
-    /** @brief Ustawia promienie poziomy i pionowy.
-     * @param radius Wektor {promień poziomy, promień pionowy}. @return Ta sama elipsa. */
+    /**
+     * @brief Ustawia promienie poziomy i pionowy.
+     * @param radius Wektor {promień poziomy, promień pionowy}.
+     * @return Ta sama elipsa.
+     */
     Ellipse& Radius(Vector2 radius) {
         radius_ = radius;
         return *this;
     }
-    // własny algorytm z 4-krotną symetrią zamiast raylib
-    /** @brief Wybiera własny algorytm czterokrotnej symetrii.
+
+    /**
+     * @brief Wybiera własny algorytm z czterokrotną symetrią zamiast raylib.
      * @param value true dla algorytmu własnego, false dla raylib.
-     * @return Ta sama elipsa. */
+     * @return Ta sama elipsa.
+     */
     Ellipse& Symmetric(bool value = true) {
         symmetric_ = value;
         return *this;
@@ -29,6 +38,7 @@ class Ellipse : public Shape<Ellipse> {
     }
 
   protected:
+    /** @copydoc Entity::Draw */
     void Draw(PrimitiveRenderer& renderer) const override {
         renderer.Paint(color_)
             .Fill(filled_)
@@ -37,6 +47,6 @@ class Ellipse : public Shape<Ellipse> {
     }
 
   private:
-    Vector2 radius_{20, 10};
-    bool symmetric_ = false;
+    Vector2 radius_{20, 10}; /**< Promienie {poziomy, pionowy}. */
+    bool symmetric_ = false; /**< Czy użyć własnego algorytmu. */
 };

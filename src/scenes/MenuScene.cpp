@@ -1,6 +1,8 @@
-/** @file MenuScene.cpp
+/**
+ * @file MenuScene.cpp
  * @brief Scena startowa z animowaną piłką i przyciskiem START.
- * @details Przycisk reaguje na najechanie kursora i przełącza na scenę prymitywów. */
+ * @details Przycisk reaguje na najechanie kursora i przełącza na scenę prymitywów.
+ */
 
 #include <cmath>
 

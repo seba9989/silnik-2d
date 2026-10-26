@@ -1,11 +1,13 @@
-/** @file Engine.cpp
- * @brief Inicjalizacja okna, pętla gry, obsługa scen i diagnostyka. */
+/**
+ * @file Engine.cpp
+ * @brief Inicjalizacja okna, pętla gry, obsługa scen i diagnostyka.
+ * @details Settery okna przed Init() tylko zapisują ustawienia, a po Init() zmieniają
+ * okno na bieżąco.
+ */
 
 #include "Engine.hpp"
 
 #include <iostream>
-
-// --- konfiguracja okna: przed Init() zapisuje ustawienia, po Init() zmienia okno ---
 
 Engine& Engine::Title(std::string title) {
     title_ = std::move(title);
@@ -46,8 +48,6 @@ Engine& Engine::Fps(int fps) {
     if (initialized_) ::SetTargetFPS(fps_);
     return *this;
 }
-
-// --- cykl życia ---
 
 Engine& Engine::Init() {
     if (initialized_) return *this;
@@ -115,8 +115,6 @@ void Engine::Shutdown() {
     initialized_ = false;
 }
 
-// --- sceny ---
-
 Scene& Engine::CreateScene(const std::string& name) {
     auto [it, created] = scenes_.try_emplace(name);
     if (!created) Log("UWAGA: scena \"" + name + "\" juz istnieje");
@@ -134,9 +132,11 @@ Engine& Engine::RegisterScene(std::string name, std::function<void(Scene&)> setu
     return *this;
 }
 
-// Tworzy sceny zarejestrowane makrem SCENE i ustawia scenę startową.
-// Kolejność rejestracji między plikami jest nieokreślona, dlatego scena startowa
-// pochodzi z StartScene(), a nie z tego, która zarejestrowała się pierwsza.
+/**
+ * @details Kolejność rejestracji między plikami jest nieokreślona, dlatego scena startowa
+ * pochodzi z StartScene(), a nie z tego, która zarejestrowała się pierwsza. Brak sceny
+ * startowej jest zapisywany w logu.
+ */
 void Engine::CreateRegisteredScenes() {
     for (auto& [name, setup] : registered_)
         setup(CreateScene(name));
@@ -160,8 +160,6 @@ Engine& Engine::SwitchScene(const std::string& name) {
     if (name != active_) pending_ = name;
     return *this;
 }
-
-// --- grafika i diagnostyka ---
 
 Engine& Engine::Clear(RenderTexture2D& target, Color color) {
     ::BeginTextureMode(target);

@@ -1,3 +1,7 @@
+/**
+ * @file Polygon.hpp
+ * @brief Kształt Polygon - wielokąt (łamana zwyczajna zamknięta).
+ */
 #pragma once
 
 #include <vector>
@@ -5,37 +9,48 @@
 #include "../../render/Geometry.hpp"
 #include "../Shape.hpp"
 
-// Wielokąt (łamana zwyczajna zamknięta), wierzchołki względem pozycji obiektu.
-// Łamana wiązana (przecinające się krawędzie) nie jest rysowana - patrz Simple().
-// Fill() wypełnia go algorytmem scanline z kontrolą parzystości.
-/** @brief Wielokąt o wierzchołkach lokalnych względem pozycji obiektu.
- * @details Przecinające się krawędzie niesąsiednie uniemożliwiają rysowanie.
- * Fill() uruchamia wypełnianie poziomymi wierszami z regułą parzystości. */
+/**
+ * @brief Wielokąt (łamana zwyczajna zamknięta) o wierzchołkach lokalnych względem obiektu.
+ * @details Łamana wiązana (przecinające się krawędzie niesąsiednie) nie jest rysowana -
+ * można to sprawdzić przez Simple(). Fill() wypełnia wielokąt algorytmem scanline
+ * z kontrolą parzystości.
+ */
 class Polygon : public Shape<Polygon> {
   public:
-    /** @brief Ustawia wierzchołki obwodu.
-     * @param vertices Punkty w kolejności obwodu. @return Ten sam wielokąt. */
+    /**
+     * @brief Ustawia wierzchołki obwodu.
+     * @param vertices Punkty w kolejności obwodu.
+     * @return Ten sam wielokąt.
+     */
     Polygon& Vertices(std::vector<Point2D> vertices) {
         vertices_ = std::move(vertices);
         return *this;
     }
-    // zbiór odcinków tworzących zamknięty łańcuch; inny zbiór daje pusty wielokąt
-    /** @brief Buduje wielokąt z uporządkowanego łańcucha odcinków.
+
+    /**
+     * @brief Buduje wielokąt z uporządkowanego, zamkniętego łańcucha odcinków.
      * @param edges Odcinki stykające się kolejno końcami i domknięte.
-     * @return Ten sam wielokąt; dla niepoprawnego łańcucha bez wierzchołków. */
+     * @return Ten sam wielokąt; dla niepoprawnego łańcucha - bez wierzchołków.
+     */
     Polygon& Edges(const std::vector<LineSegment>& edges) {
         vertices_ = PolygonVertices(edges).value_or(std::vector<Point2D>{});
         return *this;
     }
-    /** @brief Wybiera algorytm przyrostowy dla konturu.
-     * @param value Czy włączyć algorytm własny. @return Ten sam wielokąt. */
+
+    /**
+     * @brief Wybiera algorytm przyrostowy dla konturu.
+     * @param value Czy włączyć algorytm własny.
+     * @return Ten sam wielokąt.
+     */
     Polygon& Incremental(bool value = true) {
         incremental_ = value;
         return *this;
     }
 
-    /** @brief Sprawdza przecięcia niesąsiednich krawędzi.
-     * @return Wynik IsSimplePolygon() dla bieżących wierzchołków. */
+    /**
+     * @brief Sprawdza, czy wielokąt jest łamaną zwyczajną.
+     * @return Wynik IsSimplePolygon() dla bieżących wierzchołków.
+     */
     bool Simple() const { return IsSimplePolygon(vertices_); }
 
     /** @copydoc Entity::Contains */
@@ -48,6 +63,7 @@ class Polygon : public Shape<Polygon> {
     }
 
   protected:
+    /** @copydoc Entity::Draw */
     void Draw(PrimitiveRenderer& renderer) const override {
         renderer.Paint(color_)
             .Fill(filled_)
@@ -56,6 +72,6 @@ class Polygon : public Shape<Polygon> {
     }
 
   private:
-    std::vector<Point2D> vertices_;
-    bool incremental_ = false;
+    std::vector<Point2D> vertices_; /**< Wierzchołki względem pozycji obiektu. */
+    bool incremental_ = false;      /**< Czy użyć algorytmu przyrostowego. */
 };

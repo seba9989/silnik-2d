@@ -1,3 +1,7 @@
+/**
+ * @file Point.hpp
+ * @brief Kształt Point - pojedynczy piksel.
+ */
 #pragma once
 
 #include "../Shape.hpp"
@@ -12,6 +16,7 @@ class Point : public Shape<Point> {
     }
 
   protected:
+    /** @copydoc Entity::Draw */
     void Draw(PrimitiveRenderer& renderer) const override {
         renderer.Paint(color_).Point(WorldPosition());
     }

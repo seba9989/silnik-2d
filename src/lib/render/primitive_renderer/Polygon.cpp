@@ -1,17 +1,15 @@
-/** @file Polygon.cpp
- * @brief Rysowanie wielokątów i wypełnianie poziomymi wierszami.
- * @details Każdy wiersz rastra przecina krawędzie wielokąta. Posortowane
- * przecięcia są łączone w pary według reguły parzystości. */
+/**
+ * @file Polygon.cpp
+ * @brief Rysowanie wielokątów i wypełnianie poziomymi wierszami (scanline).
+ * @details Każdy wiersz rastra przecina krawędzie wielokąta. Posortowane przecięcia są
+ * łączone w pary według reguły parzystości.
+ */
 
 #include "../PrimitiveRenderer.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <vector>
-
-// ------------------------------------------------------------
-// Wielokąty
-// ------------------------------------------------------------
 
 PrimitiveRenderer& PrimitiveRenderer::Polygon(std::span<const Point2D> vertices) {
     if (!IsSimplePolygon(vertices)) return *this; // łamana wiązana - nic nie rysujemy
@@ -30,14 +28,16 @@ PrimitiveRenderer& PrimitiveRenderer::Polygon(std::span<const LineSegment> edges
     return *this;
 }
 
-// Wypełnianie z kontrolą parzystości ("YX", scanline). Dla każdej linii rastra (środek piksela
-// y + 0.5) zbieramy punkty przecięcia z krawędziami, sortujemy je po x i wypełniamy piksele
-// między kolejnymi parami - wewnątrz wielokąta jest się po nieparzystej liczbie przecięć.
-//
-// Problemy brzegowe rozwiązuje reguła półotwartego przedziału: krawędź liczy się dla linii,
-// gdy y_min <= y < y_max. Dzięki temu wierzchołek, przez który linia "przechodzi", daje jedno
-// przecięcie, a wierzchołek będący lokalnym ekstremum - zero albo dwa, więc pary się zgadzają.
-// Krawędzie poziome nie przecinają linii rastra w jednym punkcie, więc je pomijamy.
+/**
+ * @details Algorytm „YX”. Dla każdej linii rastra (środek piksela y + 0.5) zbieramy punkty
+ * przecięcia z krawędziami, sortujemy je po x i wypełniamy piksele między kolejnymi
+ * parami - wewnątrz wielokąta jest się po nieparzystej liczbie przecięć.
+ *
+ * Problemy brzegowe rozwiązuje reguła półotwartego przedziału: krawędź liczy się dla linii,
+ * gdy y_min <= y < y_max. Dzięki temu wierzchołek, przez który linia „przechodzi”, daje
+ * jedno przecięcie, a wierzchołek będący lokalnym ekstremum - zero albo dwa, więc pary się
+ * zgadzają. Krawędzie poziome nie przecinają linii rastra w jednym punkcie, więc są pomijane.
+ */
 void PrimitiveRenderer::ScanlineFill(std::span<const Point2D> vertices) {
     const auto [minIt, maxIt] = std::minmax_element(
         vertices.begin(), vertices.end(), [](Point2D a, Point2D b) { return a.Y() < b.Y(); });

@@ -1,7 +1,7 @@
-/** @file Primitives.cpp
- * @brief Podstawowe prymitywy i własny algorytm przyrostowy odcinka.
- * @details Algorytm wybiera oś o większej zmianie współrzędnej, wykonuje na niej
- * kroki o jeden piksel i dodaje stały przyrost na drugiej osi. */
+/**
+ * @file Primitives.cpp
+ * @brief Stan pędzla, podstawowe prymitywy, łamane i algorytm przyrostowy odcinka.
+ */
 
 #include "../PrimitiveRenderer.hpp"
 
@@ -10,11 +10,12 @@
 
 namespace {
 
+/** @brief Zaokrągla współrzędną do najbliższego piksela. */
 int Round(float value) {
     return static_cast<int>(std::lround(value));
 }
 
-// wspólna implementacja łamanej dla wierzchołków Vector2 i Point2D
+/** @brief Wspólna implementacja łamanej dla wierzchołków Vector2 i Point2D. */
 template <typename Vertex>
 void DrawPolyline(PrimitiveRenderer& renderer, std::span<const Vertex> vertices, bool closed) {
     if (vertices.size() < 2) return;
@@ -33,10 +34,6 @@ PrimitiveRenderer& PrimitiveRenderer::Reset() {
     return *this;
 }
 
-// ------------------------------------------------------------
-// Piksele
-// ------------------------------------------------------------
-
 void PrimitiveRenderer::Plot(int x, int y) {
     if (target_)
         target_->Pixel(x, y, color_);
@@ -49,10 +46,6 @@ void PrimitiveRenderer::Span(int y, int fromX, int toX) {
     for (int x = fromX; x <= toX; ++x)
         Plot(x, y);
 }
-
-// ------------------------------------------------------------
-// Pojedyncze prymitywy
-// ------------------------------------------------------------
 
 PrimitiveRenderer& PrimitiveRenderer::Point(Vector2 position) {
     Plot(Round(position.x), Round(position.y));
@@ -69,10 +62,15 @@ PrimitiveRenderer& PrimitiveRenderer::Line(Vector2 from, Vector2 to) {
     return *this;
 }
 
-// Algorytm przyrostowy:
-//  1. m = dy/dx
-//  2. x rośnie o 1 od lewej strony, y rośnie o m, piksel w (x, round(y))
-// Dla |m| > 1 zamieniamy role osi (krok po y, x += 1/m), inaczej odcinek miałby dziury.
+/**
+ * @details Algorytm przyrostowy:
+ * 1. m = dy/dx,
+ * 2. x rośnie o 1 od lewej strony, a y zamiast liczenia m(x - x0) + y0 rośnie o m
+ *    (y_{i+1} = y_i + m), piksel w (x, round(y)).
+ *
+ * Dla |m| > 1 role osi są zamieniane (krok o 1 po y od góry, x += 1/m), inaczej odcinek
+ * miałby dziury. Odcinek zdegenerowany do punktu rysowany jest jako jeden piksel.
+ */
 void PrimitiveRenderer::LineIncremental(Vector2 from, Vector2 to) {
     const float dx = to.x - from.x;
     const float dy = to.y - from.y;
@@ -134,10 +132,6 @@ PrimitiveRenderer& PrimitiveRenderer::Triangle(Vector2 a, Vector2 b, Vector2 c) 
     }
     return *this;
 }
-
-// ------------------------------------------------------------
-// Wersje tablicowe
-// ------------------------------------------------------------
 
 PrimitiveRenderer& PrimitiveRenderer::Points(std::span<const Vector2> positions) {
     for (const Vector2& position : positions)

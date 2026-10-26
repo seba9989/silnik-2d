@@ -1,3 +1,7 @@
+/**
+ * @file Line.hpp
+ * @brief Kształt Line - pojedynczy odcinek.
+ */
 #pragma once
 
 #include "../Shape.hpp"
@@ -5,18 +9,31 @@
 /** @brief Odcinek, którego końce są określone względem pozycji obiektu. */
 class Line : public Shape<Line> {
   public:
-    /** @brief Ustawia początek odcinka. @param position Pozycja lokalna. @return Ten sam odcinek. */
+    /**
+     * @brief Ustawia początek odcinka.
+     * @param position Pozycja lokalna.
+     * @return Ten sam odcinek.
+     */
     Line& From(Vector2 position) {
         from_ = position;
         return *this;
     }
-    /** @brief Ustawia koniec odcinka. @param position Pozycja lokalna. @return Ten sam odcinek. */
+
+    /**
+     * @brief Ustawia koniec odcinka.
+     * @param position Pozycja lokalna.
+     * @return Ten sam odcinek.
+     */
     Line& To(Vector2 position) {
         to_ = position;
         return *this;
     }
-    /** @brief Wybiera własny algorytm przyrostowy zamiast raylib.
-     * @param value Czy włączyć algorytm własny. @return Ten sam odcinek. */
+
+    /**
+     * @brief Wybiera własny algorytm przyrostowy zamiast raylib.
+     * @param value Czy włączyć algorytm własny.
+     * @return Ten sam odcinek.
+     */
     Line& Incremental(bool value = true) {
         incremental_ = value;
         return *this;
@@ -28,15 +45,16 @@ class Line : public Shape<Line> {
     }
 
     /** @brief Tolerancja trafienia kursorem w odcinek, w pikselach. */
-    static constexpr int kHitDistance = 4; // tolerancja trafienia w odcinek [px]
+    static constexpr int kHitDistance = 4;
 
   protected:
+    /** @copydoc Entity::Draw */
     void Draw(PrimitiveRenderer& renderer) const override {
         renderer.Paint(color_).Incremental(incremental_).Line(World(from_), World(to_));
     }
 
   private:
-    Vector2 from_{};
-    Vector2 to_{};
-    bool incremental_ = false;
+    Vector2 from_{};           /**< Początek względem pozycji obiektu. */
+    Vector2 to_{};             /**< Koniec względem pozycji obiektu. */
+    bool incremental_ = false; /**< Czy użyć algorytmu przyrostowego. */
 };

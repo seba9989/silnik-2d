@@ -1,7 +1,9 @@
-/** @file PrimitivesScene.cpp
- * @brief Demonstracja figur, łamanych, warstw, dzieci i algorytmu odcinka.
- * @details Scena pokazuje interakcję myszy i klawiatury oraz porównanie
- * algorytmu przyrostowego z funkcją biblioteki raylib. */
+/**
+ * @file PrimitivesScene.cpp
+ * @brief Demonstracja figur, łamanych, warstw, dzieci i algorytmu odcinka (lab 2).
+ * @details Scena pokazuje interakcję myszy i klawiatury, porównanie algorytmu
+ * przyrostowego z funkcją biblioteki raylib oraz klasy Point2D i LineSegment.
+ */
 
 #include <cmath>
 #include <vector>

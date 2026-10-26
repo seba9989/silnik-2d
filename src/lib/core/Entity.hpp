@@ -1,3 +1,7 @@
+/**
+ * @file Entity.hpp
+ * @brief Abstrakcyjna baza obiektów sceny: hierarchia, warstwy, zdarzenia i rysowanie.
+ */
 #pragma once
 
 #include <raylib.h>
@@ -11,31 +15,30 @@
 #include "../render/PrimitiveRenderer.hpp"
 #include "Input.hpp"
 
-// Baza wszystkich obiektów sceny. Obiekty tworzą drzewo: każdy może mieć dzieci
-// (Spawn<T>()), a dzieci kolejne dzieci. Pozycja dziecka jest względna wobec rodzica,
-// więc przesunięcie rodzica przesuwa całe poddrzewo.
-//
-// Zdarzenia:
-//   OnUpdate     - co klatkę
-//   OnClick      - kliknięcie lewym przyciskiem myszy na obiekcie
-//   OnMouseEnter - kursor wszedł na obiekt
-//   OnMouseLeave - kursor zszedł z obiektu
-//   OnKeyPressed - naciśnięcie konkretnego klawisza
-// Typowane wersje (z dostępem do obiektu) dodaje Shape<T>.
 /**
- * @brief Abstrakcyjna baza obiektów sceny.
- * @details Obiekty tworzą drzewo. Pozycja dziecka jest lokalna względem rodzica,
- * a zdarzenia myszy i klawiatury są obsługiwane podczas Update().
+ * @brief Abstrakcyjna baza wszystkich obiektów sceny.
+ * @details Obiekty tworzą drzewo: każdy może mieć dzieci (Spawn<T>()), a dzieci kolejne
+ * dzieci. Pozycja dziecka jest względna wobec rodzica, więc przesunięcie rodzica przesuwa
+ * całe poddrzewo. Dzieci są zawsze rysowane nad swoim rodzicem.
+ *
+ * Obsługiwane zdarzenia (sprawdzane w Update()):
+ * - OnUpdate - co klatkę,
+ * - OnClick - kliknięcie lewym przyciskiem myszy na obiekcie,
+ * - OnMouseEnter / OnMouseLeave - kursor wszedł na obiekt / zszedł z niego,
+ * - OnKeyPressed - naciśnięcie konkretnego klawisza.
+ *
+ * Metody ustawiające zdarzenia z dostępem do konkretnego typu obiektu dodaje Shape<T>.
  */
 class Entity {
   public:
     /** @brief Wirtualny destruktor umożliwiający usuwanie obiektów przez wskaźnik Entity. */
     virtual ~Entity() = default;
 
-    // dziecko tego obiektu; zwraca referencję do dziecka, żeby je skonfigurować
-    /** @brief Tworzy dziecko wybranego typu.
+    /**
+     * @brief Tworzy dziecko wybranego typu.
      * @tparam T Typ obiektu dziedziczącego po Entity.
-     * @return Referencja do nowego dziecka. */
+     * @return Referencja do nowego dziecka, do dalszej konfiguracji.
+     */
     template <typename T> T& Spawn() {
         auto child = std::make_unique<T>();
         T& ref = *child;
@@ -44,43 +47,64 @@ class Entity {
         return ref;
     }
 
-    // pozycja względem rodzica oraz wynikowa pozycja na ekranie
-    /** @brief Pobiera pozycję lokalną względem rodzica. @return Pozycja lokalna. */
+    /**
+     * @brief Pobiera pozycję lokalną względem rodzica.
+     * @return Pozycja lokalna.
+     */
     Vector2 Position() const { return position_; }
-    /** @brief Oblicza pozycję obiektu w układzie ekranu. @return Pozycja światowa. */
+
+    /**
+     * @brief Oblicza pozycję obiektu w układzie ekranu (z uwzględnieniem rodziców).
+     * @return Pozycja na ekranie.
+     */
     Vector2 WorldPosition() const {
         if (!parent_) return position_;
         const Vector2 origin = parent_->WorldPosition();
         return {origin.x + position_.x, origin.y + position_.y};
     }
 
-    // punkt na ekranie (np. kursor) -> punkt względem pozycji obiektu
-    /** @brief Przelicza punkt ekranowy na układ lokalny obiektu.
-     * @param point Punkt ekranowy. @return Punkt lokalny. */
+    /**
+     * @brief Przelicza punkt ekranowy (np. kursor) na układ lokalny obiektu.
+     * @param point Punkt w układzie ekranu.
+     * @return Punkt względem pozycji obiektu.
+     */
     Vector2 ToLocal(Vector2 point) const {
         const Vector2 origin = WorldPosition();
         return {point.x - origin.x, point.y - origin.y};
     }
 
-    /** @brief Pobiera rodzica obiektu. @return Wskaźnik rodzica lub nullptr. */
+    /**
+     * @brief Pobiera rodzica obiektu.
+     * @return Wskaźnik rodzica albo nullptr dla obiektu na najwyższym poziomie sceny.
+     */
     Entity* Parent() const { return parent_; }
-    /** @brief Sprawdza, czy kursor znajduje się nad obiektem. @return Stan najechania. */
+
+    /**
+     * @brief Sprawdza, czy kursor znajduje się nad obiektem.
+     * @return Stan najechania z ostatniego Update().
+     */
     bool Hovered() const { return hovered_; }
 
-    // warstwa: wyższa rysowana jest na wierzchu, domyślnie 0.
-    // Działa między rodzeństwem - dzieci zawsze rysowane są nad swoim rodzicem.
-    /** @brief Pobiera warstwę używaną do kolejności rysowania rodzeństwa.
-     * @return Numer warstwy. */
+    /**
+     * @brief Pobiera warstwę używaną do kolejności rysowania.
+     * @details Wyższa warstwa jest rysowana na wierzchu, domyślnie 0. Warstwa działa między
+     * rodzeństwem - dzieci zawsze są rysowane nad swoim rodzicem.
+     * @return Numer warstwy.
+     */
     int Layer() const { return layer_; }
 
-    // czy punkt na ekranie (np. kursor) leży na obiekcie - potrzebne do zdarzeń myszy
-    /** @brief Sprawdza trafienie punktem w obiekt.
-     * @param point Punkt w układzie ekranu. @return true, gdy punkt należy do obiektu. */
+    /**
+     * @brief Sprawdza trafienie punktem (np. kursorem) w obiekt.
+     * @param point Punkt w układzie ekranu.
+     * @return true, gdy punkt należy do obiektu.
+     */
     virtual bool Contains(Vector2 point) const = 0;
 
-    // co klatkę: zdarzenia tego obiektu, potem jego dzieci
-    /** @brief Aktualizuje obiekt i całe jego poddrzewo.
-     * @param dt Czas od poprzedniej klatki w sekundach. @param input Stan wejścia. */
+    /**
+     * @brief Aktualizuje obiekt: najpierw jego zdarzenia, potem całe poddrzewo.
+     * @param dt Czas od poprzedniej klatki w sekundach.
+     * @param input Stan wejścia.
+     */
     void Update(float dt, const Input& input) {
         HandleEvents(dt, input);
         // pętla po indeksie: zdarzenie może wywołać Spawn() i powiększyć wektor
@@ -88,9 +112,11 @@ class Entity {
             children_[i]->Update(dt, input);
     }
 
-    // rysuje obiekt, a nad nim jego dzieci (wg warstw)
-    /** @brief Rysuje obiekt oraz dzieci w kolejności warstw.
-     * @param renderer Renderer prymitywów. */
+    /**
+     * @brief Rysuje obiekt, a nad nim jego dzieci w kolejności warstw.
+     * @details Przed rysowaniem obiektu pędzel jest resetowany, a celem staje się ekran.
+     * @param renderer Renderer prymitywów.
+     */
     void Render(PrimitiveRenderer& renderer) const {
         renderer.Reset().TargetScreen();
         Draw(renderer);
@@ -98,9 +124,11 @@ class Entity {
             child->Render(renderer);
     }
 
-    // kolejność rysowania: od najniższej warstwy, w tej samej - w kolejności dodania
-    /** @brief Sortuje obiekty po warstwie bez zmiany kolejności równych warstw.
-     * @param list Obiekty do uporządkowania. @return Wskaźniki w kolejności rysowania. */
+    /**
+     * @brief Ustala kolejność rysowania: od najniższej warstwy, w tej samej - według dodania.
+     * @param list Obiekty do uporządkowania.
+     * @return Wskaźniki w kolejności rysowania.
+     */
     static std::vector<const Entity*> ByLayer(const std::vector<std::unique_ptr<Entity>>& list) {
         std::vector<const Entity*> order;
         order.reserve(list.size());
@@ -112,14 +140,29 @@ class Entity {
     }
 
   protected:
-    // sam kształt, bez dzieci; współrzędne ekranu liczy się przez World()
+    /**
+     * @brief Rysuje sam kształt obiektu, bez dzieci.
+     * @details Współrzędne ekranowe należy wyznaczać przez World() lub WorldPosition().
+     * @param renderer Renderer z wyczyszczonym pędzlem i celem ustawionym na ekran.
+     */
     virtual void Draw(PrimitiveRenderer& renderer) const = 0;
 
-    // punkt lokalny (względem pozycji obiektu) -> punkt na ekranie
+    /**
+     * @brief Przelicza punkt lokalny (względem pozycji obiektu) na punkt ekranowy.
+     * @param local Punkt lokalny.
+     * @return Punkt w układzie ekranu.
+     */
     Vector2 World(Vector2 local) const {
         const Vector2 origin = WorldPosition();
         return {origin.x + local.x, origin.y + local.y};
     }
+
+    /**
+     * @brief Przelicza listę wierzchołków lokalnych na ekranowe.
+     * @tparam Vertex Typ wierzchołka (Vector2 albo Point2D).
+     * @param local Wierzchołki lokalne.
+     * @return Wierzchołki w układzie ekranu.
+     */
     template <typename Vertex>
     std::vector<Vertex> WorldVertices(const std::vector<Vertex>& local) const {
         std::vector<Vertex> world;
@@ -129,19 +172,25 @@ class Entity {
         return world;
     }
 
-    Vector2 position_{};
-    Color color_ = BLACK;
-    bool filled_ = false;
-    bool hovered_ = false;
-    int layer_ = 0;
+    Vector2 position_{};   /**< Pozycja względem rodzica. */
+    Color color_ = BLACK;  /**< Kolor rysowania. */
+    bool filled_ = false;  /**< Czy figura jest wypełniona. */
+    bool hovered_ = false; /**< Czy kursor był nad obiektem w ostatnim Update(). */
+    int layer_ = 0;        /**< Warstwa wśród rodzeństwa. */
 
-    std::function<void(float)> update_;
-    std::function<void()> click_;
-    std::function<void()> mouseEnter_;
-    std::function<void()> mouseLeave_;
+    std::function<void(float)> update_; /**< Funkcja OnUpdate. */
+    std::function<void()> click_;       /**< Funkcja OnClick. */
+    std::function<void()> mouseEnter_;  /**< Funkcja OnMouseEnter. */
+    std::function<void()> mouseLeave_;  /**< Funkcja OnMouseLeave. */
+    /** Pary (kod klawisza, funkcja) ustawione przez OnKeyPressed. */
     std::vector<std::pair<int, std::function<void()>>> keys_;
 
   private:
+    /**
+     * @brief Sprawdza zdarzenia myszy i klawiatury, a potem wywołuje OnUpdate.
+     * @param dt Czas od poprzedniej klatki w sekundach.
+     * @param input Stan wejścia.
+     */
     void HandleEvents(float dt, const Input& input) {
         if (input.MouseEnabled()) {
             const bool inside = Contains(input.MousePosition());
@@ -155,6 +204,6 @@ class Entity {
         if (update_) update_(dt);
     }
 
-    Entity* parent_ = nullptr;
-    std::vector<std::unique_ptr<Entity>> children_;
+    Entity* parent_ = nullptr;                      /**< Rodzic albo nullptr. */
+    std::vector<std::unique_ptr<Entity>> children_; /**< Dzieci obiektu. */
 };

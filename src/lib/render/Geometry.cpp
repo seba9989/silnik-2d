@@ -1,7 +1,9 @@
-/** @file Geometry.cpp
+/**
+ * @file Geometry.cpp
  * @brief Test przecięcia odcinków i sprawdzanie obwodu wielokąta.
  * @details Test orientacji i przypadki współliniowe wykrywają wspólne punkty
- * niesąsiednich krawędzi. */
+ * niesąsiednich krawędzi.
+ */
 
 #include "Geometry.hpp"
 
@@ -11,17 +13,23 @@
 
 namespace {
 
-// Znak iloczynu wektorowego (b - a) x (c - a):
-// > 0 - c po lewej od prostej ab, < 0 - po prawej, 0 - na prostej.
+/**
+ * @brief Iloczyn wektorowy (b - a) x (c - a).
+ * @return > 0 - c po lewej od prostej ab, < 0 - po prawej, 0 - na prostej.
+ */
 float Cross(Point2D a, Point2D b, Point2D c) {
     return (b.X() - a.X()) * (c.Y() - a.Y()) - (b.Y() - a.Y()) * (c.X() - a.X());
 }
 
+/** @brief Znak liczby: -1, 0 albo 1. */
 int Sign(float value) {
     return (value > 0.0f) - (value < 0.0f);
 }
 
-// c leży na prostej ab - czy leży też w prostokącie ograniczającym odcinek ab
+/**
+ * @brief Dla c leżącego na prostej ab sprawdza, czy leży też w prostokącie
+ * ograniczającym odcinek ab.
+ */
 bool OnSegment(Point2D a, Point2D b, Point2D c) {
     return std::min(a.X(), b.X()) <= c.X() && c.X() <= std::max(a.X(), b.X()) &&
            std::min(a.Y(), b.Y()) <= c.Y() && c.Y() <= std::max(a.Y(), b.Y());
@@ -34,8 +42,11 @@ const Point2D& Point2D::Draw(PrimitiveRenderer& renderer) const {
     return *this;
 }
 
-// Klasyczny test orientacji: odcinki AB i CD przecinają się, gdy C i D leżą po różnych
-// stronach AB, a A i B po różnych stronach CD. Przypadki współliniowe sprawdzamy osobno.
+/**
+ * @details Klasyczny test orientacji: odcinki AB i CD przecinają się, gdy C i D leżą po
+ * różnych stronach AB, a A i B po różnych stronach CD. Przypadki współliniowe są
+ * sprawdzane osobno.
+ */
 bool LineSegment::Intersects(const LineSegment& other) const {
     const Point2D a = from_, b = to_, c = other.from_, d = other.to_;
     const int d1 = Sign(Cross(a, b, c));

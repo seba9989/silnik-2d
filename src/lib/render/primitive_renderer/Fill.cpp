@@ -1,6 +1,8 @@
-/** @file Fill.cpp
- * @brief Iteracyjne algorytmy boundary fill i flood fill na bitmapie RAM.
- * @details Stos pikseli zastępuje rekurencję. Każdy krok bada czterech sąsiadów. */
+/**
+ * @file Fill.cpp
+ * @brief Iteracyjne algorytmy boundary fill i flood fill na bitmapie RAM oraz Blit().
+ * @details Stos pikseli zastępuje rekurencję. Każdy krok bada czterech sąsiadów.
+ */
 
 #include "../PrimitiveRenderer.hpp"
 
@@ -10,22 +12,20 @@
 
 namespace {
 
+/** @brief Zaokrągla współrzędną do najbliższego piksela. */
 int Round(float value) {
     return static_cast<int>(std::lround(value));
 }
 
 } // namespace
 
-// ------------------------------------------------------------
-// Wypełnianie przez spójność
-// ------------------------------------------------------------
-
-// Boundary fill, wersja iteracyjna - rekurencję zastępuje stos, żeby duży obszar
-// nie przepełnił stosu wywołań:
-//   1. odłóż ziarno na stos
-//   2. dopóki stos nie jest pusty: zdejmij piksel P;
-//      pomiń go, jeśli ma kolor wypełnienia albo kolor krawędzi;
-//      inaczej pokoloruj P i odłóż jego sąsiadów N, S, W, E
+/**
+ * @details Wersja iteracyjna - rekurencję zastępuje stos, żeby duży obszar nie przepełnił
+ * stosu wywołań:
+ * 1. odłóż ziarno na stos,
+ * 2. dopóki stos nie jest pusty: zdejmij piksel P; pomiń go, jeśli ma kolor wypełnienia
+ *    albo kolor krawędzi; w przeciwnym razie pokoloruj P i odłóż jego sąsiadów N, S, W, E.
+ */
 PrimitiveRenderer& PrimitiveRenderer::BoundaryFill(Vector2 seed, Color boundary) {
     if (!target_) return *this; // z ekranu nie da się odczytać kolorów
 
@@ -44,7 +44,10 @@ PrimitiveRenderer& PrimitiveRenderer::BoundaryFill(Vector2 seed, Color boundary)
     return *this;
 }
 
-// Flood fill - jak wyżej, ale granicą jest każdy kolor inny niż kolor ziarna (tła).
+/**
+ * @details Przebieg jak w BoundaryFill(), ale piksel jest pomijany, gdy ma kolor wypełnienia
+ * albo kolor inny niż kolor ziarna (tła).
+ */
 PrimitiveRenderer& PrimitiveRenderer::FloodFill(Vector2 seed) {
     if (!target_) return *this;
 
@@ -67,10 +70,6 @@ PrimitiveRenderer& PrimitiveRenderer::FloodFill(Vector2 seed) {
     }
     return *this;
 }
-
-// ------------------------------------------------------------
-// Bitmapy
-// ------------------------------------------------------------
 
 PrimitiveRenderer& PrimitiveRenderer::Blit(const Bitmap& bitmap, Vector2 position) {
     ::DrawTextureV(bitmap.Texture(), position, WHITE);

@@ -9,13 +9,23 @@ FILE_PATTERNS          = *.hpp *.cpp
 RECURSIVE              = YES
 STRIP_FROM_PATH        = src
 EXTRACT_ALL            = NO
-EXTRACT_PRIVATE        = NO
+EXTRACT_PRIVATE        = YES
 SOURCE_BROWSER         = YES
 INLINE_SOURCES         = NO
 
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 GENERATE_TREEVIEW      = YES
+
+# Motyw doxygen-awesome-css v2.5.0 (licencja MIT), wariant z samym panelem bocznym:
+# https://github.com/jothepro/doxygen-awesome-css
+# Tryb ciemny włącza się automatycznie według ustawień systemu.
+DISABLE_INDEX          = NO
+FULL_SIDEBAR           = NO
+HTML_EXTRA_STYLESHEET  = doxygen/doxygen-awesome-css/doxygen-awesome.css \
+                         doxygen/doxygen-awesome-css/doxygen-awesome-sidebar-only.css
+HTML_COLORSTYLE        = LIGHT
+
 GENERATE_LATEX         = NO
 GENERATE_XML           = NO
 HAVE_DOT               = NO

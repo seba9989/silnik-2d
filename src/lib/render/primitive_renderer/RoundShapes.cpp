@@ -1,7 +1,9 @@
-/** @file RoundShapes.cpp
+/**
+ * @file RoundShapes.cpp
  * @brief Algorytmy okręgu i elipsy z wykorzystaniem symetrii.
- * @details Okrąg wykorzystuje osiem odbić punktu obliczonego w wycinku pi/4,
- * a elipsa cztery odbicia punktu obliczonego w ćwiartce. */
+ * @details Okrąg wykorzystuje osiem odbić punktu obliczonego w wycinku pi/4, a elipsa
+ * cztery odbicia punktu obliczonego w ćwiartce.
+ */
 
 #include "../PrimitiveRenderer.hpp"
 
@@ -10,15 +12,12 @@
 
 namespace {
 
+/** @brief Zaokrągla współrzędną do najbliższego piksela. */
 int Round(float value) {
     return static_cast<int>(std::lround(value));
 }
 
 } // namespace
-
-// ------------------------------------------------------------
-// Okręgi i elipsy
-// ------------------------------------------------------------
 
 PrimitiveRenderer& PrimitiveRenderer::Circle(Vector2 center, float radius) {
     if (symmetric_) {
@@ -37,10 +36,12 @@ PrimitiveRenderer& PrimitiveRenderer::Circle(Vector2 center, float radius) {
     return *this;
 }
 
-// Okrąg: x = x0 + R*cos(a), y = y0 + R*sin(a), z ośmiokrotną symetrią.
-// Liczymy tylko a z <0, pi/4>, a pozostałe 7 punktów powstaje przez zamianę x i y
-// oraz zmianę znaków. Krok kąta ~1/R sprawia, że sąsiednie punkty dzieli najwyżej 1 piksel.
-// Wypełnienie: zamiast 8 punktów rysujemy 4 poziome odcinki między punktami symetrycznymi.
+/**
+ * @details Okrąg: x = x0 + R cos(a), y = y0 + R sin(a), z ośmiokrotną symetrią. Liczone jest
+ * tylko a z przedziału <0, pi/4>, a pozostałe 7 punktów powstaje przez zamianę x i y oraz
+ * zmianę znaków. Krok kąta ~1/R sprawia, że sąsiednie punkty dzieli najwyżej 1 piksel.
+ * Wypełnienie: zamiast 8 punktów rysowane są 4 poziome odcinki między punktami symetrycznymi.
+ */
 void PrimitiveRenderer::CircleSymmetric(Vector2 center, float radius) {
     const int cx = Round(center.x);
     const int cy = Round(center.y);
@@ -82,9 +83,12 @@ PrimitiveRenderer& PrimitiveRenderer::Ellipse(Vector2 center, Vector2 radius) {
     return *this;
 }
 
-// Elipsa: x = x0 + RX*cos(a), y = y0 + RY*sin(a), z czterokrotną symetrią - liczymy
-// a z <0, pi/2>, resztę dają zmiany znaków (8-krotna symetria działa tylko dla okręgu).
-// Krok kąta ~1/max(RX, RY), żeby punkty się stykały także wzdłuż dłuższej osi.
+/**
+ * @details Elipsa: x = x0 + RX cos(a), y = y0 + RY sin(a), z czterokrotną symetrią -
+ * liczone jest a z przedziału <0, pi/2>, resztę dają zmiany znaków (symetria ośmiokrotna
+ * działa tylko dla okręgu). Krok kąta ~1/max(RX, RY), żeby punkty stykały się także wzdłuż
+ * dłuższej osi.
+ */
 void PrimitiveRenderer::EllipseSymmetric(Vector2 center, Vector2 radius) {
     const int cx = Round(center.x);
     const int cy = Round(center.y);

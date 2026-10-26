@@ -1,3 +1,7 @@
+/**
+ * @file Points.hpp
+ * @brief Kształt Points - zbiór punktów (wersja tablicowa).
+ */
 #pragma once
 
 #include <utility>
@@ -9,8 +13,11 @@
 /** @brief Zbiór punktów, których pozycje są lokalne względem obiektu. */
 class Points : public Shape<Points> {
   public:
-    /** @brief Ustawia pozycje punktów.
-     * @param positions Pozycje lokalne. @return Ten sam zbiór. */
+    /**
+     * @brief Ustawia pozycje punktów.
+     * @param positions Pozycje lokalne.
+     * @return Ten sam zbiór.
+     */
     Points& Positions(std::vector<Vector2> positions) {
         positions_ = std::move(positions);
         return *this;
@@ -25,10 +32,11 @@ class Points : public Shape<Points> {
     }
 
   protected:
+    /** @copydoc Entity::Draw */
     void Draw(PrimitiveRenderer& renderer) const override {
         renderer.Paint(color_).Points(WorldVertices(positions_));
     }
 
   private:
-    std::vector<Vector2> positions_;
+    std::vector<Vector2> positions_; /**< Pozycje punktów względem obiektu. */
 };

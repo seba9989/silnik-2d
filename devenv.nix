@@ -40,10 +40,10 @@
       | xargs clang-format -i
   '';
 
+  # Dokumentacja HTML wg doxygen/Doxyfile -> doxygen/html/index.html
   scripts.docs.exec = ''
     cd "$DEVENV_ROOT"
-    [ -f Doxyfile ] || doxygen -g Doxyfile > /dev/null
-    doxygen Doxyfile
+    doxygen doxygen/Doxyfile
   '';
 
   scripts.edit.exec = ''
@@ -58,7 +58,7 @@
     echo "Silnik 2D (raylib ${pkgs.raylib.version})"
     echo "  build  - konfiguracja i kompilacja"
     echo "  run    - kompilacja i uruchomienie"
-    echo "  fmt    - formatowanie kodu (styl Google)"
+    echo "  fmt    - formatowanie kodu (.clang-format)"
     echo "  docs   - dokumentacja Doxygen"
     echo "  edit   - otwarcie projektu w Zedzie"
     echo "  clean  - usunięcie katalogu build"

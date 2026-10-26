@@ -1,15 +1,15 @@
-/** @file ShapesScene.cpp
- * @brief Demonstracja algorytmów okręgu, elipsy, wielokąta i wypełniania.
- * @details Czerwone krzywe rysuje algorytm własny, niebieskie raylib.
- * Płótno pozwala porównać flood fill i boundary fill. */
+/**
+ * @file ShapesScene.cpp
+ * @brief Demonstracja algorytmów okręgu, elipsy, wielokąta i wypełniania (lab 3).
+ * @details Własne algorytmy okręgu i elipsy są porównywane z raylib: czerwone krzywe rysuje
+ * algorytm własny, niebieskie - raylib. Płótno pozwala porównać flood fill i boundary fill.
+ */
 
 #include <array>
 #include <vector>
 
 #include "lib/core/Engine.hpp"
 
-// Lab 3: własne algorytmy okręgu i elipsy (porównanie z raylib), wielokąty i wypełnianie.
-// Kolor czerwony - własny algorytm, niebieski - raylib.
 /** @brief Konfiguruje scenę porównania algorytmów z raylib. */
 SCENE("figury") {
     // ---------------- okrąg: 8-krotna symetria vs raylib ----------------
