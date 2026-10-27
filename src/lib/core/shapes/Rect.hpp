@@ -6,6 +6,8 @@
 
 #include "../Shape.hpp"
 
+namespace shapes {
+
 /** @brief Prostokąt, którego pozycja oznacza lewy górny róg. */
 class Rect : public Shape<Rect> {
   public:
@@ -34,3 +36,5 @@ class Rect : public Shape<Rect> {
   private:
     Vector2 size_{10, 10}; /**< Szerokość i wysokość w pikselach. */
 };
+
+} // namespace shapes

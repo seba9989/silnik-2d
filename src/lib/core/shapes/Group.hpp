@@ -6,6 +6,8 @@
 
 #include "../Shape.hpp"
 
+namespace shapes {
+
 /**
  * @brief Niewidoczny rodzic służący do grupowania i przesuwania dzieci.
  * @details Przydaje się np. dla postaci złożonej z kilku figur albo układu obiektów
@@ -23,3 +25,5 @@ class Group : public Shape<Group> {
     /** @brief Grupa nie rysuje niczego - widoczne są tylko jej dzieci. */
     void Draw(PrimitiveRenderer&) const override {}
 };
+
+} // namespace shapes

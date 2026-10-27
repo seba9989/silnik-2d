@@ -25,7 +25,7 @@
  * - @ref Scene przechowuje obiekty aktywnego ekranu.
  * - @ref Entity i @ref Shape opisują hierarchię figur oraz zdarzenia.
  * - @ref PrimitiveRenderer rysuje na ekranie albo na @ref Bitmap.
- * - @ref Canvas udostępnia bitmapę do algorytmów wypełniania.
+ * - @ref shapes::Canvas udostępnia bitmapę do algorytmów wypełniania.
  *
  * @section algorytmy Algorytmy laboratoriów
  * Własny algorytm przyrostowy odcinka, okrąg z ośmiokrotną symetrią, elipsa
@@ -60,7 +60,7 @@
 int main() {
     Engine& engine = Engine::Get()
                          .Title("Silnik 2D - lab 3")
-                         .VSync(false) // V-Sync wyłączony; podwójne buforowanie działa zawsze
+                         .VSync(false)      // V-Sync wyłączony; podwójne buforowanie działa zawsze
                          .Window(1000, 700) // albo .Fullscreen()
                          .Background(RAYWHITE)
                          .StartScene("menu")

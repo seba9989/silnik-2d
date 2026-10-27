@@ -9,6 +9,8 @@
 #include "../../render/Geometry.hpp"
 #include "../Shape.hpp"
 
+namespace shapes {
+
 /**
  * @brief Wielokąt (łamana zwyczajna zamknięta) o wierzchołkach lokalnych względem obiektu.
  * @details Łamana wiązana (przecinające się krawędzie niesąsiednie) nie jest rysowana -
@@ -75,3 +77,5 @@ class Polygon : public Shape<Polygon> {
     std::vector<Point2D> vertices_; /**< Wierzchołki względem pozycji obiektu. */
     bool incremental_ = false;      /**< Czy użyć algorytmu przyrostowego. */
 };
+
+} // namespace shapes

@@ -11,19 +11,70 @@
 
 #include "Entity.hpp"
 
+// Tabela w dokumentacji poniżej - formatter łamałby jej wiersze.
+// clang-format off
 /**
- * @brief Wspólna konfiguracja kształtów i typowane funkcje zdarzeń (CRTP).
+ * @brief Baza wszystkich kształtów, które można tworzyć przez Spawn<T>() (CRTP).
  * @tparam T Konkretny kształt dziedziczący po Shape<T>.
- * @details Metody zwracają T&, więc łańcuch wywołań nie „gubi” typu figury, a funkcje
- * zdarzeń dostają obiekt jako T&. Pozycje dzieci są względne wobec obiektu rodzica.
- * @code{.cpp}
- * scene.Spawn<Circle>().Radius(30).OnClick([](Circle& self) { self.Radius(50); });
  *
- * scene.Spawn<Rect>().Position({100, 100}).Size({200, 100}).Children([](Rect& self) {
- *     self.Spawn<Circle>().Position({20, 20}).Radius(10); // względem prostokąta
- * });
+ * @details Każdy kształt z przestrzeni nazw @ref shapes dziedziczy po Shape<T>, więc można go
+ * dodać do sceny (Scene::Spawn()) albo jako dziecko innego obiektu (Entity::Spawn()).
+ * W edytorze wystarczy wpisać `Spawn<shapes::`, aby zobaczyć listę dostępnych typów.
+ *
+ * @section shape_lista Kształty dostępne w Spawn<T>()
+ *
+ * | Typ                   | Co rysuje                             | Własne metody                         |
+ * |-----------------------|---------------------------------------|---------------------------------------|
+ * | @ref shapes::Point    | pojedynczy piksel                     | -                                     |
+ * | @ref shapes::Points   | chmurę punktów                        | `Positions()`                         |
+ * | @ref shapes::Line     | odcinek                               | `From()`, `To()`                      |
+ * | @ref shapes::Lines    | niezależne odcinki z par wierzchołków | `Vertices()`                          |
+ * | @ref shapes::Polyline | łamaną otwartą lub zamkniętą          | `Vertices()`, `Closed()`              |
+ * | @ref shapes::Rect     | prostokąt                             | `Size()`                              |
+ * | @ref shapes::Triangle | trójkąt                               | `Vertices()`                          |
+ * | @ref shapes::Circle   | okrąg / koło                          | `Radius()`, `Symmetric()`             |
+ * | @ref shapes::Ellipse  | elipsę                                | `Radius()`, `Symmetric()`             |
+ * | @ref shapes::Polygon  | wielokąt (wypełnianie scanline)       | `Vertices()`, `Edges()`               |
+ * | @ref shapes::Canvas   | bitmapę w RAM (flood/boundary fill)   | `Size()`, `Background()`, `Content()` |
+ * | @ref shapes::Group    | nic - grupuje i przesuwa dzieci       | -                                     |
+ *
+ * Metody wspólne (z tej klasy) ma każdy kształt: Position(), Move(), Paint(), Layer(),
+ * Children() oraz zdarzenia OnUpdate(), OnClick(), OnMouseEnter(), OnMouseLeave()
+ * i OnKeyPressed(). Fill() działa w Rect, Triangle, Circle, Ellipse i Polygon, a Incremental()
+ * (własny algorytm odcinka) w Line, Lines, Polyline i Polygon.
+ *
+ * @code{.cpp}
+ * scene.Spawn<shapes::Circle>()
+ *     .Position({400, 300})
+ *     .Radius(30)
+ *     .OnClick([](shapes::Circle& self) { self.Radius(50); });
+ *
+ * scene.Spawn<shapes::Rect>()
+ *     .Position({100, 100})
+ *     .Size({200, 100})
+ *     .Children([](shapes::Rect& self) {
+ *         self.Spawn<shapes::Circle>().Position({20, 20}).Radius(10); // względem prostokąta
+ *     });
+ * @endcode
+ *
+ * @section shape_wlasne Własny kształt
+ * Własny typ też można tworzyć przez Spawn<T>(), jeśli dziedziczy po Shape<T>
+ * i nadpisuje Entity::Contains() oraz Entity::Draw(). Umieszczenie go w przestrzeni nazw
+ * `shapes` sprawia, że edytor podpowie go razem z wbudowanymi.
+ * @code{.cpp}
+ * namespace shapes {
+ * class Star : public Shape<Star> {
+ *   public:
+ *     bool Contains(Vector2 point) const override;
+ *   protected:
+ *     void Draw(PrimitiveRenderer& renderer) const override;
+ * };
+ * } // namespace shapes
+ *
+ * scene.Spawn<shapes::Star>();
  * @endcode
  */
+// clang-format on
 template <typename T> class Shape : public Entity {
   public:
     /** Getter Position() z Entity - inaczej przesłoniłby go setter o tej samej nazwie. */

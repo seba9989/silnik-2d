@@ -7,6 +7,8 @@
 #include "../Shape.hpp"
 #include "Line.hpp"
 
+namespace shapes {
+
 /** @brief Pojedynczy punkt rysowany w pozycji obiektu. */
 class Point : public Shape<Point> {
   public:
@@ -21,3 +23,5 @@ class Point : public Shape<Point> {
         renderer.Paint(color_).Point(WorldPosition());
     }
 };
+
+} // namespace shapes

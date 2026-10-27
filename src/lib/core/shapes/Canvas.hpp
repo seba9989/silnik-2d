@@ -9,13 +9,15 @@
 #include "../../render/Bitmap.hpp"
 #include "../Shape.hpp"
 
+namespace shapes {
+
 /**
  * @brief Płótno: bitmapa w RAM wyświetlana w pozycji obiektu (lewy górny róg).
  * @details Po płótnie można rysować i wypełniać obszary (BoundaryFill / FloodFill), bo
  * w odróżnieniu od ekranu da się z niego odczytać kolory pikseli. Współrzędne w Content()
  * są liczone od lewego górnego rogu płótna.
  * @code{.cpp}
- * scene.Spawn<Canvas>().Position({50, 50}).Size({300, 200}).Background(WHITE)
+ * scene.Spawn<shapes::Canvas>().Position({50, 50}).Size({300, 200}).Background(WHITE)
  *     .Content([](PrimitiveRenderer& r) { r.Paint(BLACK).Circle({150, 100}, 80); });
  * @endcode
  */
@@ -87,3 +89,5 @@ class Canvas : public Shape<Canvas> {
     Bitmap bitmap_;            /**< Zawartość płótna. */
     Color background_ = WHITE; /**< Kolor używany przez Clear(). */
 };
+
+} // namespace shapes

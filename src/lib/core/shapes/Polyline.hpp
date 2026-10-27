@@ -9,6 +9,8 @@
 #include "../Shape.hpp"
 #include "Line.hpp"
 
+namespace shapes {
+
 /**
  * @brief Otwarta lub zamknięta łamana o lokalnych współrzędnych wierzchołków.
  * @details W przeciwieństwie do Polygon nie sprawdza samoprzecięć.
@@ -72,3 +74,5 @@ class Polyline : public Shape<Polyline> {
     bool closed_ = false;           /**< Czy łamana jest zamknięta. */
     bool incremental_ = false;      /**< Czy użyć algorytmu przyrostowego. */
 };
+
+} // namespace shapes

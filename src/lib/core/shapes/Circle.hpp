@@ -6,6 +6,8 @@
 
 #include "../Shape.hpp"
 
+namespace shapes {
+
 /** @brief Okrąg lub koło; pozycja obiektu oznacza środek. */
 class Circle : public Shape<Circle> {
   public:
@@ -44,3 +46,5 @@ class Circle : public Shape<Circle> {
     float radius_ = 10.0f;   /**< Promień w pikselach. */
     bool symmetric_ = false; /**< Czy użyć własnego algorytmu. */
 };
+
+} // namespace shapes

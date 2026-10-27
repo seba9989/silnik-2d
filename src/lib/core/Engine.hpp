@@ -32,7 +32,7 @@
  * if (!engine.Ready()) return 1;
  *
  * engine.CreateScene("menu", [&](Scene& scene) { // pierwsza scena staje się aktywna
- *     scene.Spawn<Circle>().Position({400, 300}).Radius(20).Paint(ORANGE).Fill();
+ *     scene.Spawn<shapes::Circle>().Position({400, 300}).Radius(20).Paint(ORANGE).Fill();
  * });
  *
  * return engine
@@ -432,7 +432,7 @@ struct SceneRegistration {
  * w Engine::Run(), a scenę startową wybiera Engine::StartScene().
  * @code{.cpp}
  * SCENE("menu") {
- *     scene.Spawn<Rect>().Position({300, 200}).Size({400, 300});
+ *     scene.Spawn<shapes::Rect>().Position({300, 200}).Size({400, 300});
  * }
  * @endcode
  * @param name Nazwa sceny używana przez StartScene() i SwitchScene().

@@ -5,6 +5,13 @@
  */
 #pragma once
 
+/**
+ * @namespace shapes
+ * @brief Kształty, które można tworzyć przez Scene::Spawn() i Entity::Spawn().
+ * @details Tabela wszystkich kształtów z opisem i metodami jest w dokumentacji klasy
+ * Shape. W kodzie wystarczy wpisać `Spawn<shapes::`, aby edytor podpowiedział typy.
+ */
+
 #include "shapes/Canvas.hpp"
 #include "shapes/Circle.hpp"
 #include "shapes/Ellipse.hpp"

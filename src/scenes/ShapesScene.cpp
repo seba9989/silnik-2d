@@ -13,45 +13,55 @@
 /** @brief Konfiguruje scenę porównania algorytmów z raylib. */
 SCENE("figury") {
     // ---------------- okrąg: 8-krotna symetria vs raylib ----------------
-    scene.Spawn<Circle>().Position({90, 110}).Radius(55).Symmetric().Paint(RED);
-    scene.Spawn<Circle>().Position({230, 110}).Radius(55).Paint(BLUE);
+    scene.Spawn<shapes::Circle>().Position({90, 110}).Radius(55).Symmetric().Paint(RED);
+    scene.Spawn<shapes::Circle>().Position({230, 110}).Radius(55).Paint(BLUE);
     // nałożone na siebie - widać różnice pojedynczych pikseli
-    scene.Spawn<Circle>().Position({370, 110}).Radius(55).Paint(BLUE);
-    scene.Spawn<Circle>().Position({370, 110}).Radius(55).Symmetric().Paint(RED).Layer(1);
+    scene.Spawn<shapes::Circle>().Position({370, 110}).Radius(55).Paint(BLUE);
+    scene.Spawn<shapes::Circle>().Position({370, 110}).Radius(55).Symmetric().Paint(RED).Layer(1);
 
-    scene.Spawn<Circle>().Position({90, 245}).Radius(45).Symmetric().Paint(RED).Fill();
-    scene.Spawn<Circle>().Position({230, 245}).Radius(45).Paint(BLUE).Fill();
+    scene.Spawn<shapes::Circle>().Position({90, 245}).Radius(45).Symmetric().Paint(RED).Fill();
+    scene.Spawn<shapes::Circle>().Position({230, 245}).Radius(45).Paint(BLUE).Fill();
 
     // ---------------- elipsa: 4-krotna symetria vs raylib ----------------
-    scene.Spawn<Ellipse>().Position({600, 110}).Radius({75, 40}).Symmetric().Paint(RED);
-    scene.Spawn<Ellipse>().Position({760, 110}).Radius({75, 40}).Paint(BLUE);
-    scene.Spawn<Ellipse>().Position({910, 110}).Radius({75, 40}).Paint(BLUE);
-    scene.Spawn<Ellipse>().Position({910, 110}).Radius({75, 40}).Symmetric().Paint(RED).Layer(1);
+    scene.Spawn<shapes::Ellipse>().Position({600, 110}).Radius({75, 40}).Symmetric().Paint(RED);
+    scene.Spawn<shapes::Ellipse>().Position({760, 110}).Radius({75, 40}).Paint(BLUE);
+    scene.Spawn<shapes::Ellipse>().Position({910, 110}).Radius({75, 40}).Paint(BLUE);
+    scene.Spawn<shapes::Ellipse>()
+        .Position({910, 110})
+        .Radius({75, 40})
+        .Symmetric()
+        .Paint(RED)
+        .Layer(1);
 
-    scene.Spawn<Ellipse>().Position({600, 245}).Radius({40, 48}).Symmetric().Paint(RED).Fill();
-    scene.Spawn<Ellipse>().Position({760, 245}).Radius({40, 48}).Paint(BLUE).Fill();
+    scene.Spawn<shapes::Ellipse>()
+        .Position({600, 245})
+        .Radius({40, 48})
+        .Symmetric()
+        .Paint(RED)
+        .Fill();
+    scene.Spawn<shapes::Ellipse>().Position({760, 245}).Radius({40, 48}).Paint(BLUE).Fill();
 
     // ---------------- wielokąty ----------------
     const std::vector<Point2D> arrow{{0, 0}, {120, 50}, {60, 60}, {50, 120}};
 
     // kontur algorytmem przyrostowym; najechanie wypełnia go (scanline z parzystością)
-    scene.Spawn<Polygon>()
+    scene.Spawn<shapes::Polygon>()
         .Position({30, 360})
         .Vertices(arrow)
         .Incremental()
         .Paint(RED)
-        .OnMouseEnter([](Polygon& self) { self.Fill(); })
-        .OnMouseLeave([](Polygon& self) { self.Fill(false); });
+        .OnMouseEnter([](shapes::Polygon& self) { self.Fill(); })
+        .OnMouseLeave([](shapes::Polygon& self) { self.Fill(false); });
 
     // wielokąt wklęsły wypełniony z kontrolą parzystości - wcięcie zostaje puste
-    scene.Spawn<Polygon>()
+    scene.Spawn<shapes::Polygon>()
         .Position({180, 360})
         .Vertices({{0, 0}, {130, 0}, {130, 120}, {65, 40}, {0, 120}})
         .Paint(RED)
         .Fill();
 
     // wielokąt zbudowany ze zbioru odcinków (LineSegment)
-    scene.Spawn<Polygon>()
+    scene.Spawn<shapes::Polygon>()
         .Position({340, 360})
         .Edges({{{0, 50}, {60, 0}},
                 {{60, 0}, {120, 50}},
@@ -64,14 +74,14 @@ SCENE("figury") {
     // łamana wiązana (krawędzie się przecinają) - metoda nic nie rysuje;
     // szare punkty pokazują tylko, gdzie leżą jej wierzchołki
     const std::vector<Point2D> bowTie{{0, 0}, {120, 90}, {120, 0}, {0, 90}};
-    scene.Spawn<Polygon>().Position({30, 520}).Vertices(bowTie).Incremental().Paint(RED);
-    scene.Spawn<Points>()
+    scene.Spawn<shapes::Polygon>().Position({30, 520}).Vertices(bowTie).Incremental().Paint(RED);
+    scene.Spawn<shapes::Points>()
         .Position({30, 520})
         .Positions({{0, 0}, {120, 90}, {120, 0}, {0, 90}})
         .Paint(GRAY)
-        .Children([](Points& self) {
+        .Children([](shapes::Points& self) {
             for (const Vector2 corner : {Vector2{0, 0}, {120, 90}, {120, 0}, {0, 90}})
-                self.Spawn<Circle>().Position(corner).Radius(3).Paint(GRAY);
+                self.Spawn<shapes::Circle>().Position(corner).Radius(3).Paint(GRAY);
         });
 
     // ---------------- wypełnianie przez spójność ----------------
@@ -93,12 +103,12 @@ SCENE("figury") {
         r.Polygon(std::vector<Point2D>{{20, 160}, {180, 160}, {180, 260}, {100, 200}, {20, 260}});
     };
 
-    scene.Spawn<Canvas>()
+    scene.Spawn<shapes::Canvas>()
         .Position({560, 330})
         .Size({420, 280})
         .Background(WHITE)
         .Content(paintContours)
-        .OnClick([colorIndex = 0](Canvas& self) mutable {
+        .OnClick([colorIndex = 0](shapes::Canvas& self) mutable {
             // inne niż kolory konturów i pasków - boundary fill traktuje piksel w kolorze
             // wypełnienia jako już wypełniony i na nim się zatrzymuje
             static constexpr std::array<Color, 6> kColors{LIME,   PINK,  VIOLET,
@@ -115,8 +125,8 @@ SCENE("figury") {
                     r.Paint(color).FloodFill(seed);
             });
         })
-        .OnKeyPressed(KEY_R,
-                      [paintContours](Canvas& self) { self.Clear().Content(paintContours); });
+        .OnKeyPressed(
+            KEY_R, [paintContours](shapes::Canvas& self) { self.Clear().Content(paintContours); });
 
     // ---------------- podpisy ----------------
     scene.OnDraw([](PrimitiveRenderer&) {

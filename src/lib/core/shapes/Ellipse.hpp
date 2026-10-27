@@ -6,6 +6,8 @@
 
 #include "../Shape.hpp"
 
+namespace shapes {
+
 /** @brief Elipsa; pozycja obiektu oznacza środek, a promienie obie półosie. */
 class Ellipse : public Shape<Ellipse> {
   public:
@@ -50,3 +52,5 @@ class Ellipse : public Shape<Ellipse> {
     Vector2 radius_{20, 10}; /**< Promienie {poziomy, pionowy}. */
     bool symmetric_ = false; /**< Czy użyć własnego algorytmu. */
 };
+
+} // namespace shapes

@@ -36,7 +36,8 @@ class Entity {
 
     /**
      * @brief Tworzy dziecko wybranego typu.
-     * @tparam T Typ obiektu dziedziczącego po Entity.
+     * @tparam T Kształt z przestrzeni nazw @ref shapes (lista w opisie klasy Shape)
+     * albo własna klasa dziedzicząca po Shape<T>, np. `Spawn<shapes::Circle>()`.
      * @return Referencja do nowego dziecka, do dalszej konfiguracji.
      */
     template <typename T> T& Spawn() {

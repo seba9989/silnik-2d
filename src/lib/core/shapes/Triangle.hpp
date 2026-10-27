@@ -6,6 +6,8 @@
 
 #include "../Shape.hpp"
 
+namespace shapes {
+
 /** @brief Trójkąt z wierzchołkami lokalnymi względem pozycji obiektu. */
 class Triangle : public Shape<Triangle> {
   public:
@@ -39,3 +41,5 @@ class Triangle : public Shape<Triangle> {
     Vector2 b_{}; /**< Drugi wierzchołek. */
     Vector2 c_{}; /**< Trzeci wierzchołek. */
 };
+
+} // namespace shapes

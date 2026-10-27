@@ -10,6 +10,8 @@
 #include "../Shape.hpp"
 #include "Line.hpp"
 
+namespace shapes {
+
 /** @brief Zbiór niezależnych odcinków tworzonych z kolejnych par wierzchołków. */
 class Lines : public Shape<Lines> {
   public:
@@ -52,3 +54,5 @@ class Lines : public Shape<Lines> {
     std::vector<Vector2> vertices_; /**< Pary końców odcinków. */
     bool incremental_ = false;      /**< Czy użyć algorytmu przyrostowego. */
 };
+
+} // namespace shapes

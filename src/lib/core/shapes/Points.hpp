@@ -10,6 +10,8 @@
 #include "../Shape.hpp"
 #include "Line.hpp"
 
+namespace shapes {
+
 /** @brief Zbiór punktów, których pozycje są lokalne względem obiektu. */
 class Points : public Shape<Points> {
   public:
@@ -40,3 +42,5 @@ class Points : public Shape<Points> {
   private:
     std::vector<Vector2> positions_; /**< Pozycje punktów względem obiektu. */
 };
+
+} // namespace shapes

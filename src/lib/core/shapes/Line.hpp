@@ -6,6 +6,8 @@
 
 #include "../Shape.hpp"
 
+namespace shapes {
+
 /** @brief Odcinek, którego końce są określone względem pozycji obiektu. */
 class Line : public Shape<Line> {
   public:
@@ -58,3 +60,5 @@ class Line : public Shape<Line> {
     Vector2 to_{};             /**< Koniec względem pozycji obiektu. */
     bool incremental_ = false; /**< Czy użyć algorytmu przyrostowego. */
 };
+
+} // namespace shapes
